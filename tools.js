@@ -3,6 +3,10 @@ module.exports = {
         return get_past_day(currentDateString);
     },
 
+    get_date_string: function (date){
+        return get_date_string(date);
+    },
+
     escapeString: function (text){
         return text.replace(/[&\/\\#+$~%'":*?<>{}]/g, '');
     },
@@ -18,12 +22,14 @@ module.exports = {
     },
 }
 
-
+function get_date_string(date){
+    return `${date.getFullYear()}-${formatAddZero(date.getMonth()+1, 2)}-${formatAddZero(date.getDate(), 2)}`;
+}
 
 function get_past_day(currentdate){
 	var onedayms = 86400000;
     var pastDayDate = new Date(new Date(currentdate)-onedayms);
-    return `${pastDayDate.getFullYear()}-${formatAddZero(pastDayDate.getMonth()+1, 2)}-${formatAddZero(pastDayDate.getDate(), 2)}`;
+    return get_date_string(pastDayDate);
 }
 
 function formatAddZero(t, symbols = 1){

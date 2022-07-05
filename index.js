@@ -7,12 +7,12 @@ const mainpath = getpath.dirname(process.argv[1]);
 const download_path = `${mainpath}\\beatmaps`;
 
 var jsons = require(`./jsons.js`);
-var { get_past_day, escapeString, sleep, log } = require(`./tools.js`);
+var { get_past_day, get_date_string, escapeString, sleep, log } = require(`./tools.js`);
 
 var very_past_date = new Date('2000-01-01');
 const config = require('./config.js');
 
-var check_date = `2020-03-31`;
+var check_date = config.use_start_date==true?config.start_date:get_date_string(new Date());
 
 const sound = require('sound-play');
 
@@ -59,7 +59,7 @@ async function download_beatmaps(){
                     log(`${await downloadquota()} quota used`);
                     log(response_download);
                     log(`waiting 30 minutes for retry.`);
-                    get_news();
+                    //get_news();
                     await sleep(1800);
                     continue checkmap;
                 }
