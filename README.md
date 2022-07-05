@@ -1,6 +1,8 @@
 # osu-beatmap-downloader
+Автоматическая загрузка карт osu
 
-заависимость модулей для установки: osu-api-extended, sound-play (не используется)
+
+зависимость модулей для установки: osu-api-extended, sound-play (не используется)
 
 переименовать config-sample в config.js
 
