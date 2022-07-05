@@ -10,4 +10,6 @@
 
 значение истино в use_start_date будет использовать start_date для старта проверки карт с этой даты,  если ложно то будет запрашивать карты с сегодняшней даты 
 
-скриншот: <img src="https://github.com/ChervyachokMigo/osu-beatmap-downloader/blob/main/1.png?raw=true" width="600" />
+скриншот: 
+
+<img src="https://github.com/ChervyachokMigo/osu-beatmap-downloader/blob/main/1.png?raw=true" width="600" />
