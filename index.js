@@ -9,7 +9,7 @@ const download_path = `${mainpath}\\beatmaps`;
 var jsons = require(`./jsons.js`);
 var { get_past_day, get_date_string, escapeString, sleep, log } = require(`./tools.js`);
 
-var very_past_date = new Date('2000-01-01');
+var stop_date = new Date('2007-10-05');
 const config = require('./config.js');
 
 var check_date = config.use_start_date==true?config.start_date:get_date_string(new Date());
@@ -71,7 +71,7 @@ async function download_beatmaps(){
         
         //если все успешно, то переходит на предыдущий день
         check_date = get_past_day(check_date);
-        if (new Date(check_date)<very_past_date){
+        if (new Date(check_date)<stop_date){
             log('ended');
             return
         }
