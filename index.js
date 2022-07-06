@@ -32,6 +32,7 @@ async function downloadquota(){
 }
 
 async function download_beatmaps(){
+    var found_maps_counter = 0;
    checkmap: while (1==1){
         log(`checking date: ${check_date}`)
         var new_beatmaps = (await v2.beatmap.search({
@@ -50,6 +51,7 @@ async function download_beatmaps(){
 
         for (let newbeatmap of new_beatmaps){
             if(!jsons.find(newbeatmap.id)){
+                found_maps_counter = 0;
                 let newbeatmap_name = `${newbeatmap.id} - ${escapeString(newbeatmap.artist)} - ${escapeString(newbeatmap.title)}.osz`;
                 var response_download = await beatmap_download(newbeatmap.id , `${download_path}\\${newbeatmap_name}`);
                 if (response_download) {
@@ -67,11 +69,14 @@ async function download_beatmaps(){
                 founded_beatmaps++;
             }
         }
+        if (founded_beatmaps === new_beatmaps.length) {
+            found_maps_counter++;
+        }
         log(`you have ${founded_beatmaps} of ${new_beatmaps.length} beatmaps`);
         
         //если все успешно, то переходит на предыдущий день
         check_date = get_past_day(check_date);
-        if (new Date(check_date)<stop_date){
+        if (new Date(check_date)<stop_date || found_maps_counter>15){
             log('ended');
             return
         }
