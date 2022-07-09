@@ -1,3 +1,4 @@
+const fs = require('fs');
 module.exports = {
     get_past_day: function (currentDateString){
         return get_past_day(currentDateString);
@@ -20,6 +21,11 @@ module.exports = {
     log: function (string){
         console.log(string);
     },
+
+    checkDir: function(path){
+        if (!fs.existsSync(`${path}`)) { fs.mkdirSync(`${path}`, {recursive: true});}
+    }
+    
 }
 
 function get_date_string(date){

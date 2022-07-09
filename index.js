@@ -7,7 +7,9 @@ const mainpath = getpath.dirname(process.argv[1]);
 const download_path = `${mainpath}\\beatmaps`;
 
 var jsons = require(`./jsons.js`);
-var { get_past_day, get_date_string, escapeString, sleep, log } = require(`./tools.js`);
+var { get_past_day, get_date_string, escapeString, sleep, log, checkDir } = require(`./tools.js`);
+
+checkDir(download_path);
 
 var stop_date = new Date('2007-10-05');
 const config = require('./config.js');
@@ -31,6 +33,9 @@ async function downloadquota(){
     return (await v2.user.me.download.quota()).quota_used;
 }
 
+var typemaps = "ranked";//'qualified';//
+
+
 async function download_beatmaps(){
     var found_maps_counter = 0;
    checkmap: while (1==1){
@@ -38,7 +43,7 @@ async function download_beatmaps(){
         var new_beatmaps = (await v2.beatmap.search({
             query: `created=${check_date}`,
             mode: "osu", 
-            section: "ranked"
+            section: typemaps,
         })).beatmapsets;
         
         log(`found ${new_beatmaps.length} beatmaps`)
