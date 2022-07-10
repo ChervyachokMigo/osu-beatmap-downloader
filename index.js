@@ -81,7 +81,7 @@ async function download_beatmaps(){
         
         //если все успешно, то переходит на предыдущий день
         check_date = get_past_day(check_date);
-        if (new Date(check_date)<stop_date || found_maps_counter>15){
+        if (new Date(check_date)<stop_date || found_maps_counter>config.maps_date_depth){
             log('ended');
             return
         }
