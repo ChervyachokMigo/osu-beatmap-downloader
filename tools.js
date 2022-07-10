@@ -8,6 +8,10 @@ module.exports = {
         return get_date_string(date);
     },
 
+    get_time_string: function (date){
+        return get_time_string(date);
+    },
+
     escapeString: function (text){
         return text.replace(/[&\/\\#+$~%'":*?<>{}]/g, '');
     },
@@ -19,13 +23,17 @@ module.exports = {
     },
       
     log: function (string){
-        console.log(string);
+        console.log(get_time_string(new Date()), string);
     },
 
     checkDir: function(path){
         if (!fs.existsSync(`${path}`)) { fs.mkdirSync(`${path}`, {recursive: true});}
     }
     
+}
+
+function get_time_string(date){
+    return `${formatAddZero(date.getHours(),2)}:${formatAddZero(date.getMinutes(),2)}:${formatAddZero(date.getSeconds(),2)}`;
 }
 
 function get_date_string(date){
