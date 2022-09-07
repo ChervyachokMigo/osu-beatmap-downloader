@@ -13,7 +13,7 @@ module.exports = {
     },
 
     escapeString: function (text){
-        return text.replace(/[&\/\\#+$~%'":*?<>{}]/g, '');
+        return text.replace(/[&\/\\#+$~%'":*?<>{}|]/g, '');
     },
 
     sleep: async function (seconds) {
