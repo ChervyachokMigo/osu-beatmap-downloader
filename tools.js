@@ -4,6 +4,10 @@ module.exports = {
         return get_past_day(currentDateString);
     },
 
+    get_past_week: function (currentDateString){
+        return get_past_week(currentDateString);
+    },
+
     get_date_string: function (date){
         return get_date_string(date);
     },
@@ -43,6 +47,13 @@ function get_date_string(date){
 function get_past_day(currentdate){
 	var onedayms = 86400000;
     var pastDayDate = new Date(new Date(currentdate)-onedayms);
+    return get_date_string(pastDayDate);
+}
+
+function get_past_week(currentdate){
+	var onedayms = 86400000;
+
+    var pastDayDate = new Date(new Date(currentdate) - onedayms * 7);
     return get_date_string(pastDayDate);
 }
 
