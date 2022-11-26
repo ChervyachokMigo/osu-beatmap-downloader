@@ -7,7 +7,7 @@ const mainpath = getpath.dirname(process.argv[1]);
 const download_path = `${mainpath}\\beatmaps`;
 
 var jsons = require(`./jsons.js`);
-var { get_past_day, get_date_string, escapeString, sleep, log, checkDir, get_past_week } = require(`./tools.js`);
+var { get_past_day, get_date_string, escapeString, sleep, log, checkDir, get_past_week, get_past_month } = require(`./tools.js`);
 
 checkDir(download_path);
 
@@ -15,8 +15,6 @@ var stop_date = new Date('2007-10-05');
 const config = require('./config.js');
 
 var check_date = config.use_start_date==true?config.start_date:get_date_string(new Date());
-
-const sound = require('sound-play');
 
 main();
 
@@ -38,19 +36,22 @@ var typemaps = "ranked";//'qualified';//
 
 async function download_beatmaps(){
     var found_maps_counter = 0;
+    var mode = config.mode==='mania'?3:config.mode==='ctb'||config.mode==='fruits'?2:config.mode==='taiko'?1:config.mode==='osu'||config.mode==='std'?0:0;
     checkmap: while (1==1){
         log(`checking date: ${check_date}`)
         var new_beatmaps = (await v2.beatmap.search({
             query: `created=${check_date}`,
-            mode: "taiko", 
+            m: mode,
             section: typemaps,
         }));
-        console.log(new_beatmaps);
+        
         new_beatmaps = new_beatmaps.beatmapsets
         
         log(`found ${new_beatmaps.length} beatmaps`)
 
         if (new_beatmaps.length>=50){
+            console.log(new_beatmaps);
+            console.log('more then 50 beatmaps');
             return 
         }
 
@@ -82,7 +83,7 @@ async function download_beatmaps(){
         log(`you have ${founded_beatmaps} of ${new_beatmaps.length} beatmaps`);
         
         //если все успешно, то переходит на предыдущий день
-        check_date = get_past_week(check_date);
+        check_date = get_past_day(check_date);
         if (new Date(check_date)<stop_date || found_maps_counter>config.maps_date_depth){
             log('ended');
             return

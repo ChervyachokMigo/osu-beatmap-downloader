@@ -8,6 +8,10 @@ module.exports = {
         return get_past_week(currentDateString);
     },
 
+    get_past_month: function (currentDateString){
+        return get_past_month(currentDateString);
+    },
+
     get_date_string: function (date){
         return get_date_string(date);
     },
@@ -53,8 +57,15 @@ function get_past_day(currentdate){
 function get_past_week(currentdate){
 	var onedayms = 86400000;
 
-    var pastDayDate = new Date(new Date(currentdate) - onedayms * 7);
-    return get_date_string(pastDayDate);
+    var pastWeekDate = new Date(new Date(currentdate) - onedayms * 7);
+    return get_date_string(pastWeekDate);
+}
+
+function get_past_month(currentdate){
+	var onedayms = 86400000;
+
+    var pastMonthDate = new Date(new Date(currentdate) - onedayms * 30);
+    return get_date_string(pastMonthDate);
 }
 
 function formatAddZero(t, symbols = 1){
