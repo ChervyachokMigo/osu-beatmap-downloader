@@ -20,6 +20,9 @@ main();
 
 async function main(){
     var access_token = await auth.login_lazer(config.login, config.password);
+    if (typeof access_token.access_token == 'undefined'){
+        throw new console.error('no auth');
+    }
     if (config.readOsudb){
         await jsons.read_osu_db();
     } else {
@@ -45,11 +48,11 @@ async function download_beatmaps(){
             section: typemaps,
         }));
         
-        new_beatmaps = new_beatmaps.beatmapsets
+        let founded_maps = new_beatmaps.beatmapsets
         
-        log(`found ${new_beatmaps.length} beatmaps`)
+        log(`found ${founded_maps.length} beatmaps`)
 
-        if (new_beatmaps.length>=50){
+        if (founded_maps.length>=50){
             console.log(new_beatmaps);
             console.log('more then 50 beatmaps');
             return 
@@ -57,7 +60,12 @@ async function download_beatmaps(){
 
         let founded_beatmaps = 0;
 
-        for (let newbeatmap of new_beatmaps){
+        for (let newbeatmap of founded_maps){
+            let not_ctb_maps = newbeatmap.beatmaps.filter((val)=>val.mode_int!==2);
+            if (not_ctb_maps.length == 0){
+                founded_beatmaps++;
+                continue;
+            }
             if(!jsons.find(newbeatmap.id)){
                 found_maps_counter = 0;
                 let newbeatmap_name = `${newbeatmap.id} - ${escapeString(newbeatmap.artist)} - ${escapeString(newbeatmap.title)}.osz`;
@@ -77,10 +85,10 @@ async function download_beatmaps(){
                 founded_beatmaps++;
             }
         }
-        if (founded_beatmaps === new_beatmaps.length) {
+        if (founded_beatmaps === founded_maps.length) {
             found_maps_counter++;
         }
-        log(`you have ${founded_beatmaps} of ${new_beatmaps.length} beatmaps`);
+        log(`you have ${founded_beatmaps} of ${founded_maps.length} beatmaps`);
         
         //если все успешно, то переходит на предыдущий день
         check_date = get_past_day(check_date);
