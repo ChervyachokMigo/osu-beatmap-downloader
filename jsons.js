@@ -18,7 +18,7 @@ var beatmaps_downloaded = get_beatmaplist();
 
 var bh = require('./osu-collection-bithexfunctions.js');
 
-const { osuFolder } = require(`./config.js`);
+const { osuFolder, isFullRescan } = require(`./config.js`);
 
 const osu_db_filename = `beatmaps_osu_db.json`;
 var db = [];
@@ -82,7 +82,7 @@ function findbeatmap(id){
 
 async function read_osu_db(){
     if (fs.existsSync(osu_db_filename)){
-        log(`reading db`);
+        console.log(`reading db`);
         let dbRAW = fs.readFileSync(osu_db_filename)
 		db = JSON.parse(dbRAW)
     } else {
@@ -99,13 +99,13 @@ async function read_osu_db(){
     }
 
     //add list to json
-    jsons.add(bm_sets);
+    add(bm_sets);
 }
 
 
 async function readOsuDbAndSaveJson(){
 
-	var osuDbFile = config.osuFolder + '\\osu!.db';
+	var osuDbFile = osuFolder + '\\osu!.db';
 	var beatmapsDBJsonFile = osu_db_filename;
 
 	await bh.openFileDB(osuDbFile)
@@ -126,32 +126,23 @@ async function readOsuDbAndSaveJson(){
 
 
 	for (let nb = 1; nb <= db.NumberBeatmaps; nb++){
-        log(`scanning ${nb} of ${db.NumberBeatmaps}`);
+        console.log(`scanning ${nb} of ${db.NumberBeatmaps}`);
 		try{
 
 		let beatmap = {}
 
-		if (config.isFullRescan == 0){
+		if (isFullRescan == 0){
 			await bh.skipString()
 			await bh.skipString()
 			await bh.skipString()
 			await bh.skipString()
 			await bh.skipString()
 			await bh.skipString()
-		} else {
-			beatmap.artist = await bh.getString()
-			beatmap.artistUni = await bh.getString()
-			beatmap.title = await bh.getString()
-			beatmap.titleUni = await bh.getString()
-			beatmap.creator = await bh.getString()
-			beatmap.difficulty = await bh.getString()
-		}
+			await bh.skipString()
 
-		beatmap.audioFile = await bh.getString()
-		beatmap.hash = await bh.getString()
-
-		if (config.isFullRescan == 0){
 			await bh.skipString()
+			await bh.skipString()
+
 			await bh.skipByte()
 			await bh.skipShort()
 			await bh.skipShort()
@@ -170,6 +161,16 @@ async function readOsuDbAndSaveJson(){
 			await bh.skipInt()
 			await bh.skipInt()
 		} else {
+			beatmap.artist = await bh.getString()
+			beatmap.artistUni = await bh.getString()
+			beatmap.title = await bh.getString()
+			beatmap.titleUni = await bh.getString()
+			beatmap.creator = await bh.getString()
+			beatmap.difficulty = await bh.getString()
+
+			beatmap.audioFile = await bh.getString()
+			beatmap.hash = await bh.getString()
+
 			beatmap.osuFilename = await bh.getString()
 			beatmap.ranked = await bh.getByte()
 			beatmap.hitcircles = await bh.getShort()
@@ -190,24 +191,30 @@ async function readOsuDbAndSaveJson(){
 			beatmap.audioPreviewTime = await bh.getInt()
 		}
 
-		beatmap.timingPointsNumber = await bh.getInt()
+		let timingPointsNumber = await bh.getInt()
 
-		if (config.isFullRescan == 0){
-				await bh.skipTimingPoints(beatmap.timingPointsNumber)
+		if (isFullRescan== 0){
+			await bh.skipTimingPoints(timingPointsNumber)
 		} else {
 			beatmap.timingPoints = []
 
-			for (let tp=1; tp<=beatmap.timingPointsNumber; tp++){
+			for (let tp=1; tp<=timingPointsNumber; tp++){
 					beatmap.timingPoints.push( ...(await bh.getTimingPoint()))
 			}
 
 			beatmap.timingPoints = { ...beatmap.timingPoints}
-
+			beatmap.timingPointsNumber = timingPointsNumber;
 		}
 
-		if (config.isFullRescan == 0){
+		if (isFullRescan== 0){
 			await bh.skipInt()
-			await bh.skipInt()
+		} else {
+			beatmap.Id = await bh.getInt()
+		}
+		
+		beatmap.setId = await bh.getInt()
+
+		if (isFullRescan== 0){
 			await bh.skipInt()
 			await bh.skipByte()
 			await bh.skipByte()
@@ -223,9 +230,16 @@ async function readOsuDbAndSaveJson(){
 			await bh.skipBool()
 			await bh.skipLong()
 			await bh.skipBool()
+			await bh.skipString()
+			await bh.skipLong()
+			await bh.skipBool()
+			await bh.skipBool()
+			await bh.skipBool()
+			await bh.skipBool()
+			await bh.skipBool()
+			await bh.skipInt()
+			await bh.skipByte()
 		} else {
-			beatmap.Id = await bh.getInt()
-			beatmap.setId= await bh.getInt()
 			beatmap.threadId = await bh.getInt()
 			beatmap.gradeStd = await bh.getByte()
 			beatmap.gradeTaiko = await bh.getByte()
@@ -241,20 +255,7 @@ async function readOsuDbAndSaveJson(){
 			beatmap.isPlayed = await bh.getBool()
 			beatmap.lastTimePlayed = await bh.getLong()
 			beatmap.isOsz2 = await bh.getBool()
-		}
-
-		beatmap.folderName = await bh.getString()
-		
-		if (config.isFullRescan == 0){
-			await bh.skipLong()
-			await bh.skipBool()
-			await bh.skipBool()
-			await bh.skipBool()
-			await bh.skipBool()
-			await bh.skipBool()
-			await bh.skipInt()
-			await bh.skipByte()
-		} else {
+			beatmap.folderName = await bh.getString()
 			beatmap.lastTimeChecked = await bh.getLong()
 			beatmap.isIgnoreSounds = await bh.getBool()
 			beatmap.isIgnoreSkin = await bh.getBool()
@@ -267,7 +268,7 @@ async function readOsuDbAndSaveJson(){
 
 		db.beatmaps.push({ ...beatmap})
 		} catch (e){
-			log (e)
+			console.log (e)
 		}
 	}
 

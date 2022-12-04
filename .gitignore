@@ -3,3 +3,5 @@
 /beatmaps_osu_db.json
 /beatmapslist.json
 /node_modules
+*.osz
+*.json
