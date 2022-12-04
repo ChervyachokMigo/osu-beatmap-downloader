@@ -68,7 +68,7 @@ async function download_beatmaps(){
             }
             if(!jsons.find(newbeatmap.id)){
                 found_maps_counter = 0;
-                let newbeatmap_name = `${newbeatmap.id} - ${escapeString(newbeatmap.artist)} - ${escapeString(newbeatmap.title)}.osz`;
+                let newbeatmap_name = `${newbeatmap.id} ${escapeString(newbeatmap.artist)} - ${escapeString(newbeatmap.title)}.osz`;
                 var response_download = await beatmap_download(newbeatmap.id , `${download_path}\\${newbeatmap_name}`);
                 if (response_download) {
                     fs.rmSync(`${download_path}\\${newbeatmap_name}`);
