@@ -44,7 +44,6 @@ async function download_beatmaps(){
     const args = minimist(process.argv.slice(2));
 
     var found_maps_counter = 0;
-    var cursor = null;
     var cursor_string = null;
     var total = 0;
 
@@ -77,10 +76,10 @@ async function download_beatmaps(){
             break;
     }
 
-    console.log('selected mode: ', args.mode)
+    log('selected mode: ' + args.mode)
 
     checkmap: while (1==1){
-        log(`checking date: ${check_date}`)
+        log(`checking date: ${check_date}\n` + `cursor: ${cursor_string}`)
         
         var new_beatmaps = (await v2.beatmap.search({
             //query: `ranked>=${Number(check_date)-1} & ranked<=${Number(check_date)+1}`,
@@ -95,7 +94,7 @@ async function download_beatmaps(){
         if (founded_maps.length>=50){
             cursor_string = new_beatmaps.cursor_string;
             if (total == 0) total = new_beatmaps.total;
-            console.log('more then 50 beatmaps. go to cursor');
+            log('more then 50 beatmaps. go to cursor');
         }
         
         log(`found ${founded_maps.length} beatmaps`)
