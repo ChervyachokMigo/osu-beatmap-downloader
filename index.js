@@ -1,5 +1,6 @@
 const fs = require('fs');
 const getpath = require(`path`);
+const minimist = require('minimist');
 
 var { v1, v2, mods, tools, auth } = require ('osu-api-extended');
 
@@ -11,14 +12,16 @@ var { get_past_day, get_date_string, escapeString, sleep, log, checkDir, get_pas
 
 checkDir(download_path);
 
-var stop_date = new Date('2007-10-05');
 const config = require('./config.js');
 
-var check_date = config.use_start_date==true?config.start_date:get_date_string(new Date());
+var check_date = config.use_start_date==true?config.start_date:get_date_string(new Date()).replaceAll('-', '');
 
 main();
 
 async function main(){
+
+
+
     var access_token = await auth.login_lazer(config.login, config.password);
     if (typeof access_token.access_token == 'undefined'){
         throw new console.error('no auth');
@@ -38,25 +41,66 @@ var typemaps = "ranked";//'qualified';//
 
 
 async function download_beatmaps(){
+    const args = minimist(process.argv.slice(2));
+
     var found_maps_counter = 0;
-    var mode = config.mode==='mania'?3:config.mode==='ctb'||config.mode==='fruits'?2:config.mode==='taiko'?1:config.mode==='osu'||config.mode==='std'?0:0;
+    var cursor = null;
+    var cursor_string = null;
+    var total = 0;
+
+    var mode = 0;
+    switch (args.mode){
+        case '1':
+        case 'taiko':
+        case 't':
+            mode = 1;
+            break;
+        case '2':
+        case 'fruits':
+        case 'ctb':
+        case 'c':
+        case 'f':
+            mode = 2;
+            break;
+        case '3':
+        case 'mania':
+        case 'm':
+            mode = 3;
+            break;
+        default:
+        case 'osu':
+        case 'std':
+        case 'o':
+        case 's':
+        case '0':
+            mode = 0;
+            break;
+    }
+
+    console.log('selected mode: ', args.mode)
+
     checkmap: while (1==1){
         log(`checking date: ${check_date}`)
+        
         var new_beatmaps = (await v2.beatmap.search({
-            query: `created=${check_date}`,
+            //query: `ranked>=${Number(check_date)-1} & ranked<=${Number(check_date)+1}`,
+            query: ``,
             m: mode,
-            section: typemaps,
+            s: typemaps,
+            cursor_string: cursor_string,
         }));
         
         let founded_maps = new_beatmaps.beatmapsets
-        
-        log(`found ${founded_maps.length} beatmaps`)
 
         if (founded_maps.length>=50){
-            console.log(new_beatmaps);
-            console.log('more then 50 beatmaps');
-            return 
+            cursor_string = new_beatmaps.cursor_string;
+            if (total == 0) total = new_beatmaps.total;
+            console.log('more then 50 beatmaps. go to cursor');
         }
+        
+        log(`found ${founded_maps.length} beatmaps`)
+        
+        
 
         let founded_beatmaps = 0;
 
@@ -89,10 +133,12 @@ async function download_beatmaps(){
             found_maps_counter++;
         }
         log(`you have ${founded_beatmaps} of ${founded_maps.length} beatmaps`);
-        
+        total -= founded_maps.length;
+        log(`осталось ${total} beatmaps`);
         //если все успешно, то переходит на предыдущий день
-        check_date = get_past_day(check_date);
-        if (new Date(check_date)<stop_date || found_maps_counter>config.maps_date_depth){
+        //check_date = get_past_day(check_date).replaceAll('-', '');
+
+        if (check_date<20071005 || found_maps_counter>config.maps_date_depth|| total <= 0 || cursor_string === null || cursor_string === undefined) {
             log('ended');
             return
         }

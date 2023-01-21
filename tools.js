@@ -1,7 +1,7 @@
 const fs = require('fs');
 module.exports = {
     get_past_day: function (currentDateString){
-        return get_past_day(currentDateString);
+        return  get_past_day(currentDateString);
     },
 
     get_past_week: function (currentDateString){
@@ -46,6 +46,7 @@ function get_time_string(date){
 
 function get_date_string(date){
     return `${date.getFullYear()}-${formatAddZero(date.getMonth()+1, 2)}-${formatAddZero(date.getDate(), 2)}`;
+    
 }
 
 function get_past_day(currentdate){
