@@ -19,9 +19,6 @@ var check_date = config.use_start_date==true?config.start_date:get_date_string(n
 main();
 
 async function main(){
-
-
-
     var access_token = await auth.login_lazer(config.login, config.password);
     if (typeof access_token.access_token == 'undefined'){
         throw new console.error('no auth');
@@ -37,8 +34,7 @@ async function downloadquota(){
     return (await v2.user.me.download.quota()).quota_used;
 }
 
-var typemaps = "ranked";//'qualified';//
-
+var typemaps = "ranked";
 
 async function download_beatmaps(){
     const args = minimist(process.argv.slice(2));
@@ -48,6 +44,7 @@ async function download_beatmaps(){
     var total = 0;
 
     var mode = 0;
+
     switch (args.mode){
         case '1':
         case 'taiko':
@@ -77,6 +74,16 @@ async function download_beatmaps(){
     }
 
     log('selected mode: ' + args.mode)
+
+    switch (args.status){
+        case 'qualified':
+        case 'ranked':
+            typemaps = args.status;
+            break;
+        default:
+            typemaps = 'ranked';
+            break;
+    }
 
     checkmap: while (1==1){
         log(`checking date: ${check_date}\n` + `cursor: ${cursor_string}`)
@@ -161,7 +168,7 @@ async function beatmap_download(id, path){
             res(e);
         }
     });
-    if (!failed) {
+    if (!failed && typemaps === 'ranked') {
         jsons.add(id);
     }
 

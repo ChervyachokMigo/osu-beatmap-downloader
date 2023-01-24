@@ -1,5 +1,6 @@
 
-cd /D E:\osumaps\
+cd /D G:\nodejs\!node_projects\osu-beatmap-downloader\beatmaps
 
 rem move the directories
-XCOPY E:\osumaps\AlternateTaikoSongs "D:\OsuAllSongs" /E /R /Y
+XCOPY * "D:\OsuSongs\*" /E /R /Y
+pause
