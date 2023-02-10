@@ -1,18 +1,14 @@
-const fs = require('fs');
-const getpath = require(`path`);
 const minimist = require('minimist');
+const { v1, v2, mods, tools, auth } = require ('osu-api-extended');
 
-var { v1, v2, mods, tools, auth } = require ('osu-api-extended');
-
-const mainpath = getpath.dirname(process.argv[1]);
-const download_path = `${mainpath}\\beatmaps`;
-
-var jsons = require(`./jsons.js`);
-var { get_past_day, get_date_string, escapeString, sleep, log, checkDir, get_past_week, get_past_month } = require(`./tools.js`);
+const jsons = require(`./tools/jsons.js`);
+const { get_date_string, escapeString, log, checkDir } = require(`./tools/tools.js`);
+const config = require('./config.js');
+const beatmap_download = require('./tools/beatmap_download.js');
+const check_response = require('./tools/check_response.js');
+const download_path = require('./tools/download_path.js');
 
 checkDir(download_path);
-
-const config = require('./config.js');
 
 var check_date = config.use_start_date==true?config.start_date:get_date_string(new Date()).replaceAll('-', '');
 
@@ -29,12 +25,6 @@ async function main(){
         await download_beatmaps();
     }
 }
-
-async function downloadquota(){
-    return (await v2.user.me.download.quota()).quota_used;
-}
-
-var typemaps = "ranked";
 
 async function download_beatmaps(){
     const args = minimist(process.argv.slice(2));
@@ -75,6 +65,8 @@ async function download_beatmaps(){
 
     log('selected mode: ' + args.mode)
 
+    var typemaps = 'ranked';
+
     switch (args.status){
         case 'qualified':
         case 'ranked':
@@ -89,7 +81,6 @@ async function download_beatmaps(){
         log(`checking date: ${check_date}\n` + `cursor: ${cursor_string}`)
         
         var new_beatmaps = (await v2.beatmap.search({
-            //query: `ranked>=${Number(check_date)-1} & ranked<=${Number(check_date)+1}`,
             query: ``,
             m: mode,
             s: typemaps,
@@ -118,17 +109,13 @@ async function download_beatmaps(){
             }
             if(!jsons.find(newbeatmap.id)){
                 found_maps_counter = 0;
-                let newbeatmap_name = `${newbeatmap.id} ${escapeString(newbeatmap.artist)} - ${escapeString(newbeatmap.title)}.osz`;
-                var response_download = await beatmap_download(newbeatmap.id , `${download_path}\\${newbeatmap_name}`);
-                if (response_download) {
-                    fs.rmSync(`${download_path}\\${newbeatmap_name}`);
-                    var d = new Date();
-                    log(`${d.getHours()}:${d.getMinutes()}`);
-                    log(`${await downloadquota()} quota used`);
-                    log(response_download);
-                    log(`waiting 30 minutes for retry.`);
-                    //get_news();
-                    await sleep(1800);
+                let osz_name = `${newbeatmap.id} ${escapeString(newbeatmap.artist)} - ${escapeString(newbeatmap.title)}.osz`;
+                let is_download_failed = await beatmap_download(newbeatmap.id , `${download_path}\\${osz_name}`);
+
+                if (!is_download_failed && typemaps === 'ranked') {
+                    jsons.add(newbeatmap.id);
+                }
+                if ( ! await check_response(is_download_failed, osz_name)){
                     continue checkmap;
                 }
             } else {
@@ -141,8 +128,6 @@ async function download_beatmaps(){
         log(`you have ${founded_beatmaps} of ${founded_maps.length} beatmaps`);
         total -= founded_maps.length;
         log(`осталось ${total} beatmaps`);
-        //если все успешно, то переходит на предыдущий день
-        //check_date = get_past_day(check_date).replaceAll('-', '');
 
         if (check_date<20071005 || found_maps_counter>config.maps_date_depth|| total <= 0 || cursor_string === null || cursor_string === undefined) {
             log('ended');
@@ -151,36 +136,4 @@ async function download_beatmaps(){
     }
 }
 
-async function beatmap_download(id, path){
-    log(`try download ${id} to ${path}`);
-    await v2.beatmap.download(id, path);
-    var failed = await new Promise ((res,rej)=>{
-        try{var stats = fs.statSync(path);
-            log(`Filesize: ${stats.size/1024} KB`);
-            if(stats.size>3000){
-                res(false);
-            } else {
-                let jsondata = fs.readFileSync(path, {encoding:`utf-8`});
-                let jsonparsed = JSON.parse(jsondata);
-                res(jsonparsed.error);
-            }
-        } catch (e){
-            res(e);
-        }
-    });
-    if (!failed && typemaps === 'ranked') {
-        jsons.add(id);
-    }
 
-    return failed;
-}
-
-async function get_news(){
-    var news = (await v2.news.list()).news_posts;
-    log (`NEWS:`);
-    for(post of news){
-        log(
-            post.title, `\n`, post.preview
-        );
-    }
-}

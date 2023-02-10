@@ -1,5 +1,6 @@
 module.exports = {
     osuFolder: `E:\\osu!`,
+    download_folder: `beatmaps`,
 
 	login: 'yourlogin',
 	password: 'yourpassword',
@@ -10,7 +11,7 @@ module.exports = {
     readOsudb: true,    //change to false after storing your odu db in beatmaplists
     isFullRescan: true,
 
-    maps_date_depth: 1800,
+    maps_date_depth: 5,
 
     mode: 'taiko'
     
