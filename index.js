@@ -12,6 +12,8 @@ checkDir(download_path);
 
 var check_date = config.use_start_date==true?config.start_date:get_date_string(new Date()).replaceAll('-', '');
 
+
+
 main();
 
 async function main(){
@@ -29,6 +31,11 @@ async function main(){
 async function download_beatmaps(){
     const args = minimist(process.argv.slice(2));
 
+    const FAV_COUNT_MIN = args.fav_count_min || config.fav_count_min || 5;
+    const stars_min = args.stars_min || config.stars_min || 0;
+    const stars_max = args.stars_max || config.stars_max || 12;
+    const maps_depth = args.maps_depth || config.maps_depth || 5;
+    
     var found_maps_counter = 0;
     var cursor_string = null;
     var total = 0;
@@ -63,19 +70,27 @@ async function download_beatmaps(){
             break;
     }
 
-    log('selected mode: ' + args.mode)
-
-    var typemaps = 'ranked';
+    var status = 'ranked';
 
     switch (args.status){
         case 'qualified':
         case 'ranked':
-            typemaps = args.status;
+        case 'loved':
+        case 'pending':
+        case 'graveyard':
+            status = args.status;
             break;
         default:
-            typemaps = 'ranked';
+            status = 'ranked';
             break;
     }
+
+    log('[settings]','\n',
+    'mode:',mode,'\n',
+    'status',status,'\n',
+    'favorite minimum count:', FAV_COUNT_MIN,'\n',
+    'stars from',stars_min,'to',stars_max,'\n',
+    'maps depth',maps_depth,'\n',)
 
     checkmap: while (1==1){
         log(`checking date: ${check_date}\n` + `cursor: ${cursor_string}`)
@@ -83,7 +98,7 @@ async function download_beatmaps(){
         var new_beatmaps = (await v2.beatmap.search({
             query: ``,
             m: mode,
-            s: typemaps,
+            s: status,
             cursor_string: cursor_string,
         }));
         
@@ -107,29 +122,51 @@ async function download_beatmaps(){
                 founded_beatmaps++;
                 continue;
             }
-            if(!jsons.find(newbeatmap.id)){
+            
+            const beatmaps_stars_min_max = newbeatmap.beatmaps.filter( 
+                val => { return val.difficulty_rating>=stars_min && val.difficulty_rating<=stars_max });
+            
+            if (beatmaps_stars_min_max.length == 0){
+                continue;
+            }
+
+            const beatmaps_selected_mode = newbeatmap.beatmaps.filter( val => val.mode_int === mode );
+
+            if (beatmaps_selected_mode.length == 0){
+                continue;
+            }
+
+            if( !jsons.find(newbeatmap.id) && 
+                newbeatmap.favourite_count > FAV_COUNT_MIN &&
+                beatmaps_stars_min_max.length > 0 &&
+                beatmaps_selected_mode.length > 0
+            ){
+                log(beatmaps_stars_min_max)
                 found_maps_counter = 0;
                 let osz_name = `${newbeatmap.id} ${escapeString(newbeatmap.artist)} - ${escapeString(newbeatmap.title)}.osz`;
                 let is_download_failed = await beatmap_download(newbeatmap.id , `${download_path}\\${osz_name}`);
 
-                if (!is_download_failed && typemaps === 'ranked') {
+                if (!is_download_failed && status !== 'qualified') {
                     jsons.add(newbeatmap.id);
                 }
                 if ( ! await check_response(is_download_failed, osz_name)){
                     continue checkmap;
                 }
+
             } else {
                 founded_beatmaps++;
             }
         }
+
         if (founded_beatmaps === founded_maps.length) {
             found_maps_counter++;
         }
         log(`you have ${founded_beatmaps} of ${founded_maps.length} beatmaps`);
+
         total -= founded_maps.length;
         log(`осталось ${total} beatmaps`);
 
-        if (check_date<20071005 || found_maps_counter>config.maps_date_depth|| total <= 0 || cursor_string === null || cursor_string === undefined) {
+        if (check_date<20071005 || found_maps_counter > maps_depth || total <= 0 || cursor_string === null || cursor_string === undefined) {
             log('ended');
             return
         }

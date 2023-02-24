@@ -30,8 +30,8 @@ module.exports = {
         });
     },
       
-    log: function (string){
-        console.log(get_time_string(new Date()), string);
+    log: function (...string){
+        console.log(get_time_string(new Date()), string.join(' ') );
     },
 
     checkDir: function(path){
