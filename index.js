@@ -35,7 +35,10 @@ async function download_beatmaps(){
     const stars_min = args.stars_min || config.stars_min || 0;
     const stars_max = args.stars_max || config.stars_max || 12;
     const maps_depth = args.maps_depth || config.maps_depth || 5;
-    
+    const min_circles = args.min_circles || config.min_circles || 30;
+    const min_length = args.min_length || config.min_length || 30;
+    const query = args.query || '';
+
     var found_maps_counter = 0;
     var cursor_string = null;
     var total = 0;
@@ -86,6 +89,7 @@ async function download_beatmaps(){
     }
 
     log('[settings]','\n',
+    'query',query,'\n',
     'mode:',mode,'\n',
     'status',status,'\n',
     'favorite minimum count:', FAV_COUNT_MIN,'\n',
@@ -96,19 +100,22 @@ async function download_beatmaps(){
         log(`checking date: ${check_date}\n` + `cursor: ${cursor_string}`)
         
         var new_beatmaps = (await v2.beatmap.search({
-            query: ``,
+            query: query,
             m: mode,
             s: status,
             cursor_string: cursor_string,
         }));
         
         let founded_maps = new_beatmaps.beatmapsets
+        var old_cursor = cursor_string;
 
         if (founded_maps.length>=50){
             cursor_string = new_beatmaps.cursor_string;
             if (total == 0) total = new_beatmaps.total;
             log('more then 50 beatmaps. go to cursor');
         }
+
+        
         
         log(`found ${founded_maps.length} beatmaps`)
         
@@ -123,25 +130,24 @@ async function download_beatmaps(){
                 continue;
             }
             
-            const beatmaps_stars_min_max = newbeatmap.beatmaps.filter( 
-                val => { return val.difficulty_rating>=stars_min && val.difficulty_rating<=stars_max });
+            const beatmaps_selected = newbeatmap.beatmaps.filter( 
+                val => { 
+                    return val.mode_int === mode && 
+                    val.difficulty_rating>=stars_min && 
+                    val.difficulty_rating<=stars_max && 
+                    val.total_length>min_length && 
+                    val.count_circles>min_circles
+                });
             
-            if (beatmaps_stars_min_max.length == 0){
+            if (beatmaps_selected.length == 0){
                 continue;
             }
 
-            const beatmaps_selected_mode = newbeatmap.beatmaps.filter( val => val.mode_int === mode );
-
-            if (beatmaps_selected_mode.length == 0){
-                continue;
-            }
 
             if( !jsons.find(newbeatmap.id) && 
                 newbeatmap.favourite_count > FAV_COUNT_MIN &&
-                beatmaps_stars_min_max.length > 0 &&
-                beatmaps_selected_mode.length > 0
-            ){
-                log(beatmaps_stars_min_max)
+                beatmaps_selected.length > 0 ){
+
                 found_maps_counter = 0;
                 let osz_name = `${newbeatmap.id} ${escapeString(newbeatmap.artist)} - ${escapeString(newbeatmap.title)}.osz`;
                 let is_download_failed = await beatmap_download(newbeatmap.id , `${download_path}\\${osz_name}`);
@@ -169,6 +175,11 @@ async function download_beatmaps(){
         if (check_date<20071005 || found_maps_counter > maps_depth || total <= 0 || cursor_string === null || cursor_string === undefined) {
             log('ended');
             return
+        }
+
+        if (cursor_string === old_cursor && cursor_string !== null) {
+            log(`last cursor. ended.`)
+            break;
         }
     }
 }

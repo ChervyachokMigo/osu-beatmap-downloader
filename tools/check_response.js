@@ -1,7 +1,7 @@
 const fs = require('fs');
 var { sleep, log } = require(`./tools.js`);
-var { downloadquota } = require("./downloadquota.js");
-var { download_path } = require("./download_path.js");
+var  downloadquota  = require("./downloadquota.js");
+var  download_path  = require("./download_path.js");
 
 module.exports =  async function check_response (response, beatmapname) {
     if (response) {
