@@ -12,8 +12,6 @@ checkDir(download_path);
 
 var check_date = config.use_start_date==true?config.start_date:get_date_string(new Date()).replaceAll('-', '');
 
-
-
 main();
 
 async function main(){
@@ -31,16 +29,24 @@ async function main(){
 async function download_beatmaps(){
     const args = minimist(process.argv.slice(2));
 
-    const FAV_COUNT_MIN = args.fav_count_min || config.fav_count_min || 5;
+    const FAV_COUNT_MIN = args.fav_count_min || config.fav_count_min || 0;
     const stars_min = args.stars_min || config.stars_min || 0;
     const stars_max = args.stars_max || config.stars_max || 12;
     const maps_depth = args.maps_depth || config.maps_depth || 5;
-    const min_circles = args.min_circles || config.min_circles || 30;
-    const min_length = args.min_length || config.min_length || 30;
-    const query = args.query || '';
+    const min_circles = args.min_circles || config.min_circles || 0;
+    const min_length = args.min_length || config.min_length || 0;
+
+    const strict = args.strict || false;
+
+    const query = strict ? '"'+args.query+'"' : args.query || '';
+    
 
     var found_maps_counter = 0;
-    var cursor_string = null;
+
+    var cursor_string = args.cursor || null;
+
+    log(cursor_string)
+
     var total = 0;
 
     var mode = 0;
@@ -87,6 +93,8 @@ async function download_beatmaps(){
             status = 'ranked';
             break;
     }
+
+
 
     log('[settings]','\n',
     'query',query,'\n',
