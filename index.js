@@ -172,9 +172,10 @@ async function download_beatmaps(){
             }
         }
 
-        if (founded_beatmaps === founded_maps.length) {
+        if (founded_beatmaps === founded_maps.length || founded_maps.length === 50 ) {
             found_maps_counter++;
         }
+
         log(`you have ${founded_beatmaps} of ${founded_maps.length} beatmaps`);
 
         total -= founded_maps.length;
