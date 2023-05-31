@@ -17,7 +17,7 @@ main();
 async function main(){
     var access_token = await auth.login_lazer(config.login, config.password);
     if (typeof access_token.access_token == 'undefined'){
-        throw new console.error('no auth');
+        throw new Error('no auth');
     }
     if (config.readOsudb){
         await jsons.read_osu_db();
