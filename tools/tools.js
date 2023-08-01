@@ -1,4 +1,6 @@
 const fs = require('fs');
+const colors = require('colors');
+
 module.exports = {
     get_past_day: function (currentDateString){
         return  get_past_day(currentDateString);
@@ -31,7 +33,7 @@ module.exports = {
     },
       
     log: function (...string){
-        console.log(get_time_string(new Date()), string.join(' ') );
+        console.log(`[${get_time_string(new Date()).yellow}]`, string.join(' ') );
     },
 
     checkDir: function(path){

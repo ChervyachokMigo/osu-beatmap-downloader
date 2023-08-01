@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "colors": "^1.4.0",
     "minimist": "^1.2.7",
     "osu-api-extended": "^2.5.6",
     "sound-play": "^1.1.0"

@@ -1,6 +1,7 @@
 const minimist = require('minimist');
 const { v1, v2, mods, tools, auth } = require ('osu-api-extended');
 
+
 const jsons = require(`./tools/jsons.js`);
 const { get_date_string, escapeString, log, checkDir } = require(`./tools/tools.js`);
 const config = require('./config.js');
@@ -105,7 +106,7 @@ async function download_beatmaps(){
     'maps depth',maps_depth,'\n',)
 
     checkmap: while (1==1){
-        log(`checking date: ${check_date}\n` + `cursor: ${cursor_string}`)
+        log(`[query params]\nchecking date: ${check_date}\n` + `cursor: ${cursor_string}`)
         
         var new_beatmaps = (await v2.beatmap.search({
             query: query,
@@ -157,6 +158,8 @@ async function download_beatmaps(){
                 beatmaps_selected.length > 0 ){
 
                 found_maps_counter = 0;
+
+
                 let osz_name = `${newbeatmap.id} ${escapeString(newbeatmap.artist)} - ${escapeString(newbeatmap.title)}.osz`;
                 let is_download_failed = await beatmap_download(newbeatmap.id , `${download_path}\\${osz_name}`);
 
@@ -175,6 +178,8 @@ async function download_beatmaps(){
         if (founded_beatmaps === founded_maps.length || founded_maps.length === 50 ) {
             found_maps_counter++;
         }
+
+        log('maps counter:', found_maps_counter);
 
         log(`you have ${founded_beatmaps} of ${founded_maps.length} beatmaps`);
 
