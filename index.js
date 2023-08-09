@@ -8,26 +8,56 @@ const config = require('./config.js');
 const beatmap_download = require('./tools/beatmap_download.js');
 const check_response = require('./tools/check_response.js');
 const download_path = require('./tools/download_path.js');
+const fs = require('fs');
+const get_beatmap_size = require('./get_beatmap_size.js');
+
 
 checkDir(download_path);
 
 var check_date = config.use_start_date==true?config.start_date:get_date_string(new Date()).replaceAll('-', '');
 
+const web = require('./web_interface');
+
+var access_token = undefined;
+
+const { clearInterval } = require('timers');
+
+const get_file_size = async (path) => {
+    return new Promise ( (res, rej)=>{
+        fs.stat(path, (err, stats)=>{
+            if (err) {
+                res (0);
+            }
+            res(stats.size);
+        });
+    })
+    
+}
+
 main();
 
 async function main(){
-    var access_token = await auth.login_lazer(config.login, config.password);
+
+    await web.init();
+
+    access_token = await auth.login_lazer(config.login, config.password);
+    
     if (typeof access_token.access_token == 'undefined'){
         throw new Error('no auth');
     }
+
+    fs.writeFileSync("osu_token.json",JSON.stringify(access_token));
+
     if (config.readOsudb){
         await jsons.read_osu_db();
     } else {
-        await download_beatmaps();
+        await download_beatmaps(0);
+        await download_beatmaps(1);
+        await download_beatmaps(3);
     }
 }
 
-async function download_beatmaps(){
+async function download_beatmaps(default_mode = 0){
     const args = minimist(process.argv.slice(2));
 
     const FAV_COUNT_MIN = args.fav_count_min || config.fav_count_min || 0;
@@ -50,7 +80,7 @@ async function download_beatmaps(){
 
     var total = 0;
 
-    var mode = 0;
+    var mode = default_mode;
 
     switch (args.mode){
         case '1':
@@ -70,13 +100,13 @@ async function download_beatmaps(){
         case 'm':
             mode = 3;
             break;
-        default:
         case 'osu':
         case 'std':
         case 'o':
         case 's':
         case '0':
             mode = 0;
+        default:
             break;
     }
 
@@ -126,7 +156,7 @@ async function download_beatmaps(){
 
         
         
-        log(`found ${founded_maps.length} beatmaps`)
+        log(`found ${founded_maps.length} beatmaps`);
         
         
 
@@ -159,11 +189,35 @@ async function download_beatmaps(){
 
                 found_maps_counter = 0;
 
-
                 let osz_name = `${newbeatmap.id} ${escapeString(newbeatmap.artist)} - ${escapeString(newbeatmap.title)}.osz`;
-                let is_download_failed = await beatmap_download(newbeatmap.id , `${download_path}\\${osz_name}`);
+                let osz_full_path = `${download_path}\\${osz_name}`;
+
+                let beatmap_size = Number(get_beatmap_size(access_token.access_token, newbeatmap.id));
+                let downloaded_bytes = 0;
+
+                web.update_beatmap(newbeatmap.id, 
+                {
+                    mode: mode, 
+                    artist: newbeatmap.artist, 
+                    title: newbeatmap.title,
+                    progress: downloaded_bytes,
+                    filesize: beatmap_size
+                });
+
+                let lastInterval = setInterval( async ()=>{
+                    downloaded_bytes = await get_file_size(osz_full_path);
+                    web.update_beatmap(newbeatmap.id, {progress: downloaded_bytes});
+                    console.log(downloaded_bytes, beatmap_size);
+                }, 300);
+
+                    console.log(downloaded_bytes, beatmap_size);
+                
+                let is_download_failed = await beatmap_download(newbeatmap.id , osz_full_path);
+                
+                clearInterval(lastInterval);
 
                 if (!is_download_failed && status !== 'qualified') {
+                    web.update_beatmap(newbeatmap.id, {progress: beatmap_size});
                     jsons.add(newbeatmap.id);
                 }
                 if ( ! await check_response(is_download_failed, osz_name)){
