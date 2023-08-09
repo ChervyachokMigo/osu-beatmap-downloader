@@ -1,2 +1,2 @@
-node index.js --mode taiko --status qualified
+electron . --mode taiko --status qualified
 pause

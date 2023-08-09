@@ -37,7 +37,7 @@ const get_file_size = async (path) => {
 main();
 
 async function main(){
-
+    
     await web.init();
 
     access_token = await auth.login_lazer(config.login, config.password);
@@ -51,9 +51,19 @@ async function main(){
     if (config.readOsudb){
         await jsons.read_osu_db();
     } else {
-        await download_beatmaps(0);
-        await download_beatmaps(1);
-        await download_beatmaps(3);
+        const args = minimist(process.argv.slice(2));
+        if (args.mode){
+            const modes = args.mode.split(',');
+            if ( modes.length>1 ){
+                for (let mode of modes) {
+                    await download_beatmaps(mode);
+                };
+            } else {
+                await download_beatmaps(args.mode);
+            }
+        } else {
+            await download_beatmaps();
+        }
     }
 }
 
