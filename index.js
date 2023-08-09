@@ -217,19 +217,17 @@ async function download_beatmaps(default_mode = 0){
                 let lastInterval = setInterval( async ()=>{
                     downloaded_bytes = await get_file_size(osz_full_path);
                     web.update_beatmap(newbeatmap.id, {progress: downloaded_bytes});
-                    console.log(downloaded_bytes, beatmap_size);
                 }, 300);
-
-                    console.log(downloaded_bytes, beatmap_size);
                 
-                let is_download_failed = await beatmap_download(newbeatmap.id , osz_full_path);
-                
-                clearInterval(lastInterval);
+                let is_download_failed = await beatmap_download(newbeatmap.id , osz_full_path);                
 
                 if (!is_download_failed && status !== 'qualified') {
-                    web.update_beatmap(newbeatmap.id, {progress: beatmap_size});
                     jsons.add(newbeatmap.id);
                 }
+
+                clearInterval(lastInterval);
+                web.update_beatmap(newbeatmap.id, {progress: beatmap_size});
+
                 if ( ! await check_response(is_download_failed, osz_name)){
                     continue checkmap;
                 }

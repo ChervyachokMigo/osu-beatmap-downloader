@@ -11,7 +11,7 @@ module.exports = async function beatmap_download(id, path) {
             await v2.beatmap.download(id, path);
 
             var stats = fs.statSync(path);
-            log(`Filesize: ${stats.size / 1024} KB`);
+
             if (stats.size > 3000) {
                 res(false);
             } else {
@@ -19,6 +19,7 @@ module.exports = async function beatmap_download(id, path) {
                 let jsonparsed = JSON.parse(jsondata);
                 res(jsonparsed.error);
             }
+            
         } catch (e) {
             res(e);
         }
