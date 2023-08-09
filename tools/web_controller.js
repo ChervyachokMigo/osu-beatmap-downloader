@@ -9,7 +9,7 @@ web.use(bodyParser.json());
 web.use(bodyParser.urlencoded({ extended: false }));
 
 const HTTP_PORT = 4444;
-const webserver_dir = 'web';
+const webserver_dir = '../web';
 
 const PathListener = (webserver_descriptor, filepath, filename) =>{
     webserver_descriptor.get(filepath, (req, res) => {

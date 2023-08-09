@@ -1,3 +1,4 @@
+const { clearInterval } = require('timers');
 const minimist = require('minimist');
 const { v1, v2, mods, tools, auth } = require ('osu-api-extended');
 
@@ -8,43 +9,34 @@ const config = require('./config.js');
 const beatmap_download = require('./tools/beatmap_download.js');
 const check_response = require('./tools/check_response.js');
 const download_path = require('./tools/download_path.js');
-const fs = require('fs');
-const get_beatmap_size = require('./get_beatmap_size.js');
 
+const get_beatmap_size = require('./tools/get_beatmap_size.js');
+const web = require('./tools/web_controller.js');
+const get_file_size = require('./tools/get_file_size.js');
 
 checkDir(download_path);
 
 var check_date = config.use_start_date==true?config.start_date:get_date_string(new Date()).replaceAll('-', '');
 
-const web = require('./web_interface');
-
 var access_token = undefined;
 
-const { clearInterval } = require('timers');
-
-const get_file_size = async (path) => {
-    return new Promise ( (res, rej)=>{
-        fs.stat(path, (err, stats)=>{
-            if (err) {
-                res (0);
-            }
-            res(stats.size);
-        });
-    })
-    
+const auth_osu = async (login, password)=>{
+    let token = await auth.login_lazer(login, password);
+    if (typeof token.access_token == 'undefined'){
+        log('no auth osu. trying again...');
+        return await auth_osu( login, password );
+    } else {
+        return token
+    }
 }
 
 main();
 
 async function main(){
     
-    await web.init();
+    access_token = await auth_osu(config.login, config.password);
 
-    access_token = await auth.login_lazer(config.login, config.password);
-    
-    if (typeof access_token.access_token == 'undefined'){
-        throw new Error('no auth');
-    }
+    await web.init();
 
     if (config.readOsudb){
         await jsons.read_osu_db();
