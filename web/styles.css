@@ -4,6 +4,16 @@ body {
     background-color: cadetblue;
 }
 
+.beatmap_info {
+    width: 400px;
+    word-wrap: break-word;
+    text-wrap: balance;
+}
+
+.artist_title {
+    margin-bottom: 5px;
+}
+
 .beatmap_image img {
     border-radius: 10px;
 }
@@ -31,4 +41,9 @@ progress[value] {
 progress[value]::-webkit-progress-value {
     background-color: aqua;
     border-radius: 10px;
+}
+
+progress[value]::-webkit-progress-bar {
+    border-radius: 10px;
+    background: lightseagreen;
 }

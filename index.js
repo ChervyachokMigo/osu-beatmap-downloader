@@ -46,8 +46,6 @@ async function main(){
         throw new Error('no auth');
     }
 
-    fs.writeFileSync("osu_token.json",JSON.stringify(access_token));
-
     if (config.readOsudb){
         await jsons.read_osu_db();
     } else {
