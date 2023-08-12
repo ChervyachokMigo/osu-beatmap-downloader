@@ -40,24 +40,26 @@ async function main(){
 
     if (config.readOsudb){
         await jsons.read_osu_db();
-    } else {
-        const args = minimist(process.argv.slice(2));
-        if (args.mode){
-            const modes = args.mode.split(',');
-            if ( modes.length>1 ){
-                for (let mode of modes) {
-                    await download_beatmaps(mode);
-                };
-            } else {
-                await download_beatmaps(args.mode);
-            }
+        console.log('scan ended')
+    }
+
+    const args = minimist(process.argv.slice(2));
+    
+    if (args.mode){
+        const modes = args.mode.split(',');
+        if ( modes.length>1 ){
+            for (let mode of modes) {
+                await download_beatmaps(mode);
+            };
         } else {
-            await download_beatmaps();
+            await download_beatmaps(args.mode);
         }
+    } else {
+        await download_beatmaps();
     }
 }
 
-async function download_beatmaps(default_mode = 0){
+async function download_beatmaps(mode = 0){
     const args = minimist(process.argv.slice(2));
 
     const FAV_COUNT_MIN = args.fav_count_min || config.fav_count_min || 0;
@@ -80,9 +82,7 @@ async function download_beatmaps(default_mode = 0){
 
     var total = 0;
 
-    var mode = default_mode;
-
-    switch (args.mode){
+    switch (mode){
         case '1':
         case 'taiko':
         case 't':
@@ -209,6 +209,8 @@ async function download_beatmaps(default_mode = 0){
                     web.update_beatmap(newbeatmap.id, {progress: downloaded_bytes});
                 }, 300);
                 
+                log ('starting download',(beatmap_size/(1024*1024)).toFixed(2),'MB');
+
                 let is_download_failed = await beatmap_download(newbeatmap.id , osz_full_path);                
 
                 if (!is_download_failed && status !== 'qualified') {
@@ -231,12 +233,10 @@ async function download_beatmaps(default_mode = 0){
             found_maps_counter++;
         }
 
-        log('maps counter:', found_maps_counter);
-
         log(`you have ${founded_beatmaps} of ${founded_maps.length} beatmaps`);
 
         total -= founded_maps.length;
-        log(`осталось ${total} beatmaps`);
+        log(`${total} beatmaps left`);
 
         if (check_date<20071005 || found_maps_counter > maps_depth || total <= 0 || cursor_string === null || cursor_string === undefined) {
             log('ended');

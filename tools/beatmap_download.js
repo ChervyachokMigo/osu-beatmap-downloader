@@ -6,7 +6,7 @@ module.exports = async function beatmap_download(id, path) {
     return await new Promise(async (res, rej) => {
         try {
 
-            log(`try download ${id} to ${path}`);
+            log(`downloading ${id} to ${path}`);
 
             await v2.beatmap.download(id, path);
 
