@@ -71,7 +71,7 @@ async function download_beatmaps(mode = 0){
 
     const strict = args.strict || false;
 
-    const query = strict ? '"'+args.query+'"' : args.query || '';
+    const query = strict ? '"'+args.query+'"' : args.query || undefined;
     
 
     var found_maps_counter = 0;
@@ -79,8 +79,6 @@ async function download_beatmaps(mode = 0){
     var cursor_string = args.cursor || null;
 
     log(cursor_string)
-
-    var total = 0;
 
     switch (mode){
         case '1':
@@ -134,9 +132,11 @@ async function download_beatmaps(mode = 0){
     'favorite minimum count:', FAV_COUNT_MIN,'\n',
     'stars from',stars_min,'to',stars_max,'\n',
     'maps depth',maps_depth,'\n',)
+    
+    var total = null;
 
     checkmap: while (1==1){
-        log(`[query params]\nchecking date: ${check_date}\n` + `cursor: ${cursor_string}`)
+        log(`[query params]\nchecking date: check_date\n` + `cursor: ${cursor_string}`)
         
         var new_beatmaps = (await v2.beatmap.search({
             query: query,
@@ -148,9 +148,12 @@ async function download_beatmaps(mode = 0){
         let founded_maps = new_beatmaps.beatmapsets
         var old_cursor = cursor_string;
 
+        if (total === null) {
+            total = new_beatmaps.total;
+        }
+
         if (founded_maps.length>=50){
             cursor_string = new_beatmaps.cursor_string;
-            if (total == 0) total = new_beatmaps.total;
             log('more then 50 beatmaps. go to cursor');
         }
 
@@ -163,25 +166,25 @@ async function download_beatmaps(mode = 0){
         let founded_beatmaps = 0;
 
         for (let newbeatmap of founded_maps){
+
             let not_ctb_maps = newbeatmap.beatmaps.filter((val)=>val.mode_int!==2);
+
             if (not_ctb_maps.length == 0){
                 founded_beatmaps++;
                 continue;
             }
             
-            const beatmaps_selected = newbeatmap.beatmaps.filter( 
-                val => { 
-                    return val.mode_int === mode && 
+            const beatmaps_selected = newbeatmap.beatmaps.filter( val => { 
+                return val.mode_int === mode && 
                     val.difficulty_rating>=stars_min && 
                     val.difficulty_rating<=stars_max && 
                     val.total_length>min_length && 
                     val.count_circles>min_circles
-                });
+            });
             
             if (beatmaps_selected.length == 0){
                 continue;
             }
-
 
             if( !jsons.find(newbeatmap.id) && 
                 newbeatmap.favourite_count > FAV_COUNT_MIN &&
@@ -236,9 +239,10 @@ async function download_beatmaps(mode = 0){
         log(`you have ${founded_beatmaps} of ${founded_maps.length} beatmaps`);
 
         total -= founded_maps.length;
+        
         log(`${total} beatmaps left`);
 
-        if (check_date<20071005 || found_maps_counter > maps_depth || total <= 0 || cursor_string === null || cursor_string === undefined) {
+        if ( found_maps_counter > maps_depth || total <= 0 || cursor_string === null || cursor_string === undefined) {
             log('ended');
             return
         }
