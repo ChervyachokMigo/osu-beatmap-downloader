@@ -1,2 +1,2 @@
-electron . --mode std --maps_depth 500
+electron . --mode std --maps_depth 10
 pause

@@ -33,7 +33,7 @@ module.exports = {
     },
       
     log: function (...string){
-        console.log(`[${get_time_string(new Date()).yellow}]`, string.join(' ') );
+        console.log( `[${get_time_string(new Date()).yellow}]`, string.join(' ') );
     },
 
     checkDir: function(path){

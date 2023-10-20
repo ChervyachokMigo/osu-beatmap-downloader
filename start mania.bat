@@ -1,2 +1,2 @@
-electron . --mode mania --maps_depth 5
+electron . --mode mania --maps_depth 10
 pause

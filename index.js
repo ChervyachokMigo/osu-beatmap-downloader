@@ -13,6 +13,8 @@ const download_path = require('./tools/download_path.js');
 const get_beatmap_size = require('./tools/get_beatmap_size.js');
 const web = require('./tools/web_controller.js');
 const get_file_size = require('./tools/get_file_size.js');
+const { readdirSync, renameSync, copyFileSync, rmSync } = require('fs');
+const path = require('path');
 
 checkDir(download_path);
 
@@ -136,7 +138,9 @@ async function download_beatmaps(mode = 0){
     var total = null;
 
     checkmap: while (1==1){
-        log(`[query params]\nchecking date: check_date\n` + `cursor: ${cursor_string}`)
+        log(`[query params]`);
+        log(`cursor: ${cursor_string}`);
+        log(`cursor: ${cursor_string}`);
         
         var new_beatmaps = (await v2.beatmap.search({
             query: query,
@@ -244,7 +248,7 @@ async function download_beatmaps(mode = 0){
 
         if ( found_maps_counter > maps_depth || total <= 0 || cursor_string === null || cursor_string === undefined) {
             log('ended');
-            return
+            break
         }
 
         if (cursor_string === old_cursor && cursor_string !== null) {
@@ -252,6 +256,25 @@ async function download_beatmaps(mode = 0){
             break;
         }
     }
+
+    copy_beatmaps();
+
 }
+
+const move_file_sync = (src, dest) => {
+    copyFileSync(src, dest);
+    rmSync(src);
+    log('move from',src);
+    log('move to', dest)
+}
+
+const copy_beatmaps = () => {
+    log('moving files to Songs..')
+    const files = readdirSync(config.download_folder, {encoding: 'utf8'});
+    for (const file of files ) {
+        move_file_sync(path.join(__dirname, config.download_folder, file), path.join(config.osuFolder, 'Songs', file));
+    }
+}
+
 
 

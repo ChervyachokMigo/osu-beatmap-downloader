@@ -1,2 +1,2 @@
-electron . --mode taiko --maps_depth 500
+electron . --mode taiko --maps_depth 10
 pause
