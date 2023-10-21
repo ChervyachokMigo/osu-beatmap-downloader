@@ -18,7 +18,7 @@ const path = require('path');
 
 checkDir(download_path);
 
-var check_date = config.use_start_date==true?config.start_date:get_date_string(new Date()).replaceAll('-', '');
+//var check_date = config.use_start_date && config.use_start_date==true?config.start_date:get_date_string(new Date()).replaceAll('-', '');
 
 var access_token = undefined;
 

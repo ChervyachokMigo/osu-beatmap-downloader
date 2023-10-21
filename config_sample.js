@@ -1,18 +1,27 @@
 module.exports = {
-    osuFolder: `E:\\osu!`,
+    //Папка osu 
+    osuFolder: `D:\\osu!`,
+
+    //временная папка загрузки
     download_folder: `beatmaps`,
 
+    //логин пароль осу
 	login: 'yourlogin',
 	password: 'yourpassword',
-    
-    use_start_date: true,
-    start_date: '2022-07-05',
 
-    readOsudb: true,    //change to false after storing your odu db in beatmaplists
+    //сканирование базы карт из осу
+    readOsudb: true,    //изменить на false после сканирования
     isFullRescan: true,
 
+    //глубина поиска карт по умолчанию 5 * 50 = 250 карт
+    //если карт не найдено, то будет столько раз запрошено далее (банчо выдает за раз максимум 50 карт в запросе)
     maps_date_depth: 5,
 
-    mode: 'taiko'
+    //режим по умолчанию
+    //osu
+    //taiko
+    //mania
+    //fruits (отключены фрукты)
+    mode: 'osu'
     
 }
