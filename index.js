@@ -259,13 +259,18 @@ async function download_beatmaps(mode = 0){
 
     copy_beatmaps();
 
+    process.exit(0)
 }
 
 const move_file_sync = (src, dest) => {
-    copyFileSync(src, dest);
-    rmSync(src);
-    log('move from',src);
-    log('move to', dest)
+    try{
+        log('move from',src);
+        log('move to', dest)
+        copyFileSync(src, dest);
+        rmSync(src);
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 const copy_beatmaps = () => {
