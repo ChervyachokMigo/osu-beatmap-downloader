@@ -4,7 +4,7 @@ const { v1, v2, mods, tools, auth } = require ('osu-api-extended');
 
 
 const jsons = require(`./tools/jsons.js`);
-const { get_date_string, escapeString, log, checkDir } = require(`./tools/tools.js`);
+const { get_date_string, escapeString, log, checkDir, sleep } = require(`./tools/tools.js`);
 const config = require('./config.js');
 const beatmap_download = require('./tools/beatmap_download.js');
 const check_response = require('./tools/check_response.js');
@@ -13,7 +13,7 @@ const download_path = require('./tools/download_path.js');
 const get_beatmap_size = require('./tools/get_beatmap_size.js');
 const web = require('./tools/web_controller.js');
 const get_file_size = require('./tools/get_file_size.js');
-const { readdirSync, renameSync, copyFileSync, rmSync } = require('fs');
+const { readdirSync, renameSync, copyFileSync, rmSync, writeFileSync, readFileSync, rm } = require('fs');
 const path = require('path');
 
 checkDir(download_path);
@@ -61,6 +61,19 @@ async function main(){
     }
 }
 
+const save_last_cursor = (cursor) => {
+    writeFileSync('last_cursor.json', JSON.stringify ({cursor}), {encoding: 'utf8'});
+}
+
+const load_last_cursor = () => {
+    try {
+        const res = readFileSync('last_cursor.json', {encoding: 'utf8'});
+        return JSON.parse(res);
+    } catch (e) {
+        return {cursor: null};
+    }
+}
+
 async function download_beatmaps(mode = 0){
     const args = minimist(process.argv.slice(2));
 
@@ -74,11 +87,18 @@ async function download_beatmaps(mode = 0){
     const strict = args.strict || false;
 
     const query = strict ? '"'+args.query+'"' : args.query || undefined;
-    
+
+    const down_continue = args.continue || 'no';
 
     var found_maps_counter = 0;
 
-    var cursor_string = args.cursor || null;
+    if (down_continue === 'no') {
+        try{ 
+            rmSync('last_cursor.json');
+        } catch (e) {}
+    }
+
+    var cursor_string = args.cursor || load_last_cursor().cursor;
 
     log(cursor_string)
 
@@ -140,7 +160,6 @@ async function download_beatmaps(mode = 0){
     checkmap: while (1==1){
         log(`[query params]`);
         log(`cursor: ${cursor_string}`);
-        log(`cursor: ${cursor_string}`);
         
         var new_beatmaps = (await v2.beatmap.search({
             query: query,
@@ -161,11 +180,9 @@ async function download_beatmaps(mode = 0){
             log('more then 50 beatmaps. go to cursor');
         }
 
+        save_last_cursor(cursor_string);
         
-        
-        log(`found ${founded_maps.length} beatmaps`);
-        
-        
+        log(`found ${founded_maps.length} beatmaps`);        
 
         let founded_beatmaps = 0;
 
@@ -199,7 +216,16 @@ async function download_beatmaps(mode = 0){
                 let osz_name = `${newbeatmap.id} ${escapeString(newbeatmap.artist)} - ${escapeString(newbeatmap.title)}.osz`;
                 let osz_full_path = `${download_path}\\${osz_name}`;
 
-                let beatmap_size = Number(get_beatmap_size(access_token.access_token, newbeatmap.id));
+                let filesize_response = get_beatmap_size(access_token.access_token, newbeatmap.id);
+
+                if (filesize_response.error){
+                    log(filesize_response.error);
+                    log(`waiting 30 minutes for retry.`);
+                    await sleep(1800);
+                    continue checkmap;
+                }
+                
+                let beatmap_size = Number(filesize_response.size);
                 let downloaded_bytes = 0;
 
                 web.update_beatmap(newbeatmap.id, 

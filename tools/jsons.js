@@ -126,7 +126,10 @@ async function readOsuDbAndSaveJson(){
 
 
 	for (let nb = 1; nb <= db.NumberBeatmaps; nb++){
-        console.log(`scanning ${nb} of ${db.NumberBeatmaps}`);
+		if (nb % 1000 === 0) {
+			console.log(`scanning ${(nb/db.NumberBeatmaps*100).toFixed(1)} %`);
+		}
+        
 		try{
 
 		let beatmap = {}
