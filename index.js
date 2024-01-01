@@ -2,7 +2,7 @@ const { clearInterval } = require('timers');
 const minimist = require('minimist');
 const { v1, v2, mods, tools, auth } = require ('osu-api-extended');
 
-
+const defaults = require('./const_defaults.js');
 const jsons = require(`./tools/jsons.js`);
 const { get_date_string, escapeString, log, checkDir, sleep } = require(`./tools/tools.js`);
 const config = require('./config.js');
@@ -59,6 +59,10 @@ async function main(){
     } else {
         await download_beatmaps();
     }
+
+    copy_beatmaps();
+
+    process.exit(0);
 }
 
 const save_last_cursor = (cursor) => {
@@ -77,18 +81,18 @@ const load_last_cursor = () => {
 async function download_beatmaps(mode = 0){
     const args = minimist(process.argv.slice(2));
 
-    const FAV_COUNT_MIN = args.fav_count_min || config.fav_count_min || 0;
-    const stars_min = args.stars_min || config.stars_min || 0;
-    const stars_max = args.stars_max || config.stars_max || 12;
-    const maps_depth = args.maps_depth || config.maps_depth || 5;
-    const min_circles = args.min_circles || config.min_circles || 0;
-    const min_length = args.min_length || config.min_length || 0;
+    const FAV_COUNT_MIN = args.fav_count_min || config.fav_count_min || defaults.fav_count_min;
+    const stars_min = args.stars_min || config.stars_min || defaults.stars_min;
+    const stars_max = args.stars_max || config.stars_max || defaults.stars_max;
+    const maps_depth = args.maps_depth || config.maps_depth || defaults.maps_depth;
+    const min_circles = args.min_circles || config.min_circles || defaults.min_circles;
+    const min_length = args.min_length || config.min_length || defaults.min_length;
 
     const strict = args.strict || false;
 
     const query = strict ? '"'+args.query+'"' : args.query || undefined;
 
-    const down_continue = args.continue || 'no';
+    const down_continue = args.continue || defaults.is_continue;
 
     var found_maps_counter = 0;
 
@@ -188,12 +192,12 @@ async function download_beatmaps(mode = 0){
 
         for (let newbeatmap of founded_maps){
 
-            let not_ctb_maps = newbeatmap.beatmaps.filter((val)=>val.mode_int!==2);
+            /*let not_ctb_maps = newbeatmap.beatmaps.filter((val)=>val.mode_int!==2);
 
             if (not_ctb_maps.length == 0){
                 founded_beatmaps++;
                 continue;
-            }
+            }*/
             
             const beatmaps_selected = newbeatmap.beatmaps.filter( val => { 
                 return val.mode_int === mode && 
@@ -282,10 +286,6 @@ async function download_beatmaps(mode = 0){
             break;
         }
     }
-
-    copy_beatmaps();
-
-    process.exit(0)
 }
 
 const move_file_sync = (src, dest) => {

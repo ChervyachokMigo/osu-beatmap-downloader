@@ -5,7 +5,7 @@ module.exports = {
     //временная папка загрузки
     download_folder: `beatmaps`,
 
-    //логин пароль осу
+    //логин и пароль от осу
 	login: 'yourlogin',
 	password: 'yourpassword',
 
@@ -21,7 +21,7 @@ module.exports = {
     //osu
     //taiko
     //mania
-    //fruits (отключены фрукты)
+    //fruits
     mode: 'osu'
     
 }
