@@ -11,4 +11,4 @@ echo (WARNING, It erase data of downloaded maps, data of scan osu db and setting
 echo Когда откроется config.js измените пути и введите свои осу логин и пароль, а затем закройте окно
 echo When config.js will open you must change osu path and enter your osu login and password, after that you must close editor window
 pause
-md data & del data\beatmapslist.json & del data\beatmaps_osu_db.json & del data\last_cursor.json & npm i & copy config_sample.js config.js & config.js & start_launcher.bat
+md data & del data\beatmapslist.json & del data\beatmaps_osu_db.json & del data\last_cursor.json & npm i & copy misc/config_sample.js config.js & config.js & start_launcher.bat

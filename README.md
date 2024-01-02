@@ -38,5 +38,5 @@
 
 скриншот: 
 
-<img src="https://github.com/ChervyachokMigo/osu-beatmap-downloader/blob/main/1.png?raw=true" width="600" />
-<img src="https://github.com/ChervyachokMigo/osu-beatmap-downloader/blob/main/2.png?raw=true" width="600" />
+<img src="https://github.com/ChervyachokMigo/osu-beatmap-downloader/blob/main/misc/1.png?raw=true" width="600" />
+<img src="https://github.com/ChervyachokMigo/osu-beatmap-downloader/blob/main/misc/2.png?raw=true" width="600" />

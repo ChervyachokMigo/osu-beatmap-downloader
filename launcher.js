@@ -1,8 +1,9 @@
 const { execSync } = require('child_process');
-const defaults = require('./const_defaults.js');
+const defaults = require('./misc/const_defaults.js');
 const keypress = require('keypress');
 const { readFileSync } = require('fs');
 const colors = require('colors');
+const path = require('path');
 
 const menu_props = {
     preset: 1,
@@ -122,7 +123,7 @@ const command_props = {
 
 const load_presets = () => {
     command_props.presets.variants = 
-        command_props.presets.variants.concat(JSON.parse(readFileSync('presets.json', {encoding: 'utf8'})));
+        command_props.presets.variants.concat(JSON.parse(readFileSync(path.join('data', 'presets.json'), {encoding: 'utf8'})));
 }
 
 const numbers = '0123456789';

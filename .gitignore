@@ -1,4 +1,6 @@
 ﻿/node_modules
-/data
+/data/beatmaps_osu_db.json
+/data/beatmapslist.json
+/data/last_cursor.json
 *.osz
 config.js

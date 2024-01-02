@@ -2,7 +2,7 @@ const { clearInterval } = require('timers');
 const minimist = require('minimist');
 const { v2, auth } = require ('osu-api-extended');
 
-const defaults = require('./const_defaults.js');
+const defaults = require('./misc/const_defaults.js');
 const jsons = require(`./tools/jsons.js`);
 const { escapeString, log, checkDir, sleep } = require(`./tools/tools.js`);
 const config = require('./config.js');
