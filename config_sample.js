@@ -1,13 +1,18 @@
 module.exports = {
+    // ОБЯЗАТЕЛЬНЫЕ ПАРАМЕТРЫ:
+
     //Папка osu 
     osuFolder: `D:\\osu!`,
-
-    //временная папка загрузки
-    download_folder: `beatmaps`,
 
     //логин и пароль от осу
 	login: 'yourlogin',
 	password: 'yourpassword',
+
+
+    //НИЖЕ НЕОБЯЗАТЕЛЬНЫЕ ПАРАМЕТРЫ:
+
+    //временная папка загрузки
+    download_folder: `beatmaps`,
 
     //ручное сканирование базы карт из осу
     readOsudb: false,       //не нужно
@@ -23,5 +28,4 @@ module.exports = {
     //mania
     //fruits
     mode: 'osu'
-    
 }
