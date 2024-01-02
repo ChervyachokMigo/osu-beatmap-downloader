@@ -1,10 +1,9 @@
-
+﻿
 /config.js
 /beatmaps_osu_db.json
 /beatmapslist.json
 /node_modules
 *.osz
-*.json
 trash.txt
 config.js
 missing_BGs_beamaps_id — копия (2).txt
@@ -12,3 +11,4 @@ missing_BGs_beamaps_id — копия (3).txt
 missing_BGs_beamaps_id — копия.txt
 missing_BGs_beamaps_id.txt
 Новый текстовый документ.txt
+last_cursor.json
