@@ -16,7 +16,11 @@ const get_file_size = require('./tools/get_file_size.js');
 const { readdirSync, copyFileSync, rmSync, writeFileSync, readFileSync, existsSync } = require('fs');
 const path = require('path');
 
+const last_cursor_path = path.join(__dirname, 'data', 'last_cursor.json');
+const osu_db_path = path.join(__dirname, 'data', 'beatmaps_osu_db.json');
+
 checkDir(download_path);
+checkDir(path.join(__dirname, 'data'));
 
 var access_token = undefined;
 
@@ -39,7 +43,7 @@ async function main(){
     await web.init();
 
     
-    if (!existsSync(`beatmaps_osu_db.json`)){
+    if (!existsSync(osu_db_path)){
         await jsons.read_osu_db();
         console.log('scan ended')
     }
@@ -65,12 +69,12 @@ async function main(){
 }
 
 const save_last_cursor = (cursor) => {
-    writeFileSync('last_cursor.json', JSON.stringify ({cursor}), {encoding: 'utf8'});
+    writeFileSync(last_cursor_path, JSON.stringify ({cursor}), {encoding: 'utf8'});
 }
 
 const load_last_cursor = () => {
     try {
-        const res = readFileSync('last_cursor.json', {encoding: 'utf8'});
+        const res = readFileSync(last_cursor_path, {encoding: 'utf8'});
         return JSON.parse(res);
     } catch (e) {
         return {cursor: null};
@@ -97,7 +101,7 @@ async function download_beatmaps(mode = 0){
 
     if (down_continue === 'no') {
         try{ 
-            rmSync('last_cursor.json');
+            rmSync(last_cursor_path);
         } catch (e) {}
     }
 

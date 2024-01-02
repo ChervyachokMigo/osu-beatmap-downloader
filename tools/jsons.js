@@ -13,21 +13,22 @@ module.exports = {
     }
 }
 
-const beatmaplistFilename = 'beatmapslist.json'; 
 var beatmaps_downloaded = get_beatmaplist();
 
 var bh = require('./osu-collection-bithexfunctions.js');
 
 const { osuFolder, isFullRescan } = require(`../config.js`);
 
-const osu_db_filename = `beatmaps_osu_db.json`;
+const osu_db_path = path.join('data', 'beatmaps_osu_db.json');
+const beatmaplist_path =  path.join('data', 'beatmapslist.json'); 
+
 var db = [];
 
 /////////beatmap json
 
 function get_beatmaplist(){
-    if (fs.existsSync(beatmaplistFilename)){
-        let jsondata = fs.readFileSync(beatmaplistFilename, {encoding:`utf-8`});
+    if (fs.existsSync(beatmaplist_path)){
+        let jsondata = fs.readFileSync(beatmaplist_path, {encoding:`utf-8`});
         let jsonparsed = JSON.parse(jsondata);
 
         return jsonparsed;
@@ -39,7 +40,7 @@ function get_beatmaplist(){
 }
 
 function save(jsondata){
-    fs.writeFileSync(beatmaplistFilename, JSON.stringify(jsondata), {encoding:'utf-8'});
+    fs.writeFileSync(beatmaplist_path, JSON.stringify(jsondata), {encoding:'utf-8'});
 }
 
 function add(obj){
@@ -81,9 +82,9 @@ function findbeatmap(id){
 ///////////osu db json
 
 async function read_osu_db(){
-    if (fs.existsSync(osu_db_filename)){
+    if (fs.existsSync(osu_db_path)){
         console.log(`reading db`);
-        let dbRAW = fs.readFileSync(osu_db_filename)
+        let dbRAW = fs.readFileSync(osu_db_path)
 		db = JSON.parse(dbRAW)
     } else {
         //read osu db if beatmaps list not exists
@@ -106,7 +107,7 @@ async function read_osu_db(){
 async function readOsuDbAndSaveJson(){
 
 	var osuDbFile = osuFolder + '\\osu!.db';
-	var beatmapsDBJsonFile = osu_db_filename;
+	var beatmapsDBJsonFile = osu_db_path;
 
 	await bh.openFileDB(osuDbFile)
 
