@@ -1,26 +1,14 @@
 const fs = require('fs');
+const path = require('path');
 
-module.exports = {
-    add: function(ids){
-        add(ids);
-    },
-    find: function(id){
-        return findbeatmap(id);
-    },
-
-    read_osu_db: async function (){
-        await read_osu_db();
-    }
-}
+const osu_db_path = path.join('data', 'beatmaps_osu_db.json');
+const beatmaplist_path =  path.join('data', 'beatmapslist.json'); 
 
 var beatmaps_downloaded = get_beatmaplist();
 
 var bh = require('./osu-collection-bithexfunctions.js');
 
 const { osuFolder, isFullRescan } = require(`../config.js`);
-
-const osu_db_path = path.join('data', 'beatmaps_osu_db.json');
-const beatmaplist_path =  path.join('data', 'beatmapslist.json'); 
 
 var db = [];
 
@@ -283,4 +271,18 @@ async function readOsuDbAndSaveJson(){
 	await beatmapsJsonFile.writeFile(beatmapsJsonData)
 	await beatmapsJsonFile.close()
 
+}
+
+module.exports = {
+    add: function(ids){
+        add(ids);
+    },
+	
+    find: function(id){
+        return findbeatmap(id);
+    },
+
+    read_osu_db: async function (){
+        await read_osu_db();
+    }
 }
