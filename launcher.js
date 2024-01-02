@@ -2,6 +2,7 @@ const { execSync } = require('child_process');
 const defaults = require('./const_defaults.js');
 const keypress = require('keypress');
 const { readFileSync } = require('fs');
+const colors = require('colors');
 
 const menu_props = {
     preset: 1,
@@ -146,18 +147,20 @@ const command_build = () => {
 
 const refresh = () => {
     console.clear();
-    console.log(`[ESC] QUIT`);
-    console.log(`[TAB] PRESET: ${command_props.presets.variants[menu_props.preset].name}`);
-    console.log(`[Q] Gamemode: ${command_props.gamemode.variants[menu_props.gamemode].text}`);
-    console.log(`[W] Status: ${command_props.status.variants[menu_props.status].text}`);
-    console.log(`${enter_keys.maps_depth.enable?'> ':''}[E] Maps depth: ${enter_keys.maps_depth.text}${enter_keys.maps_depth.enable?'_':''}`);
-    console.log(`${enter_keys.fav_count_min.enable?'> ':''}[R] Favorites count min: ${enter_keys.fav_count_min.text}${enter_keys.fav_count_min.enable?'_':''}`);
-    console.log(`${enter_keys.stars_min.enable?'> ':''}[T] Stars min: ${enter_keys.stars_min.text}${enter_keys.stars_min.enable?'_':''}`);
-    console.log(`${enter_keys.stars_max.enable?'> ':''}[Y] Stars max: ${enter_keys.stars_max.text}${enter_keys.stars_max.enable?'_':''}`);
-    console.log(`${enter_keys.min_circles.enable?'> ':''}[U] Circles min: ${enter_keys.min_circles.text}${enter_keys.min_circles.enable?'_':''}`);
-    console.log(`${enter_keys.min_length.enable?'> ':''}[I] Length min: ${enter_keys.min_length.text}${enter_keys.min_length.enable?'_':''}`);
-    console.log(`[O] Is continue: ${command_props.is_continue.variants[menu_props.continue].text}`);
-    console.log(`[ENTER] Run command: ${command_build()}`)
+    console.log(`LAUNCHER > OSU BEATMAPS DOWNLOADER`.white);
+    console.log(`Hint: [Button] Action`.gray);
+    console.log(`[ESC]`.yellow,`QUIT`.white);
+    console.log(`[TAB]`.yellow, `PRESET:`.white, `${command_props.presets.variants[menu_props.preset].name}`.green);
+    console.log(`[Q]`.yellow, `Gamemode:`.white, `${command_props.gamemode.variants[menu_props.gamemode].text}`.green);
+    console.log(`[W]`.yellow, `Status:`.white, `${command_props.status.variants[menu_props.status].text}`.green);
+    console.log(`${enter_keys.maps_depth.enable?'> ':''}[E]`.yellow, `Maps depth:`.white, `${enter_keys.maps_depth.text.toString().green}${enter_keys.maps_depth.enable?'_':''}`);
+    console.log(`${enter_keys.fav_count_min.enable?'> ':''}[R]`.yellow, `Favorites count min:`.white, `${enter_keys.fav_count_min.text.toString().green}${enter_keys.fav_count_min.enable?'_':''}`);
+    console.log(`${enter_keys.stars_min.enable?'> ':''}[T]`.yellow, `Stars min:`.white, `${enter_keys.stars_min.text.toString().green}${enter_keys.stars_min.enable?'_':''}`);
+    console.log(`${enter_keys.stars_max.enable?'> ':''}[Y]`.yellow, `Stars max:`.white, `${enter_keys.stars_max.text.toString().green}${enter_keys.stars_max.enable?'_':''}`);
+    console.log(`${enter_keys.min_circles.enable?'> ':''}[U]`.yellow, `Circles min:`.white, `${enter_keys.min_circles.text.toString().green}${enter_keys.min_circles.enable?'_':''}`);
+    console.log(`${enter_keys.min_length.enable?'> ':''}[I]`.yellow, `Length min:`.white, `${enter_keys.min_length.text.toString().green}${enter_keys.min_length.enable?'_':''}`);
+    console.log(`[O]`.yellow, `Is continue:`.white, `${command_props.is_continue.variants[menu_props.continue].text}`.green);
+    console.log(`[ENTER]`.yellow, `Run command:`.white, `${command_build()}`.green)
 }
 
 const toggle_action_input = (key_name, action_name, ch, key) => {
