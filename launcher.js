@@ -188,6 +188,15 @@ const toggle_action_input = (key_name, action_name, ch, key) => {
     }
 }
 
+const action_inputs = [
+    {key: 'e', action: 'maps_depth'},
+    {key: 'r', action: 'fav_count_min'},
+    {key: 't', action: 'stars_min'},
+    {key: 'y', action: 'stars_max'},
+    {key: 'u', action: 'min_circles'},
+    {key: 'i', action: 'min_length'},
+];
+
 const init_key_events = () => {
 
     keypress(process.stdin);
@@ -209,12 +218,9 @@ const init_key_events = () => {
             menu_props.preset = 0;
         }
 
-        toggle_action_input('e', 'maps_depth', ch, key);
-        toggle_action_input('r', 'fav_count_min', ch, key);
-        toggle_action_input('t', 'stars_min', ch, key);
-        toggle_action_input('y', 'stars_max', ch, key);
-        toggle_action_input('u', 'min_circles', ch, key);
-        toggle_action_input('i', 'min_length', ch, key);
+        for (let action_input of action_inputs){
+            toggle_action_input(action_input.key, action_input.action, ch, key);
+        }
 
         if (key && key.name == 'o') {
             command_props.is_continue.toggle();

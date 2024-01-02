@@ -1,10 +1,10 @@
 const { clearInterval } = require('timers');
 const minimist = require('minimist');
-const { v1, v2, mods, tools, auth } = require ('osu-api-extended');
+const { v2, auth } = require ('osu-api-extended');
 
 const defaults = require('./const_defaults.js');
 const jsons = require(`./tools/jsons.js`);
-const { get_date_string, escapeString, log, checkDir, sleep } = require(`./tools/tools.js`);
+const { escapeString, log, checkDir, sleep } = require(`./tools/tools.js`);
 const config = require('./config.js');
 const beatmap_download = require('./tools/beatmap_download.js');
 const check_response = require('./tools/check_response.js');
@@ -13,12 +13,10 @@ const download_path = require('./tools/download_path.js');
 const get_beatmap_size = require('./tools/get_beatmap_size.js');
 const web = require('./tools/web_controller.js');
 const get_file_size = require('./tools/get_file_size.js');
-const { readdirSync, renameSync, copyFileSync, rmSync, writeFileSync, readFileSync, rm } = require('fs');
+const { readdirSync, copyFileSync, rmSync, writeFileSync, readFileSync, existsSync } = require('fs');
 const path = require('path');
 
 checkDir(download_path);
-
-//var check_date = config.use_start_date && config.use_start_date==true?config.start_date:get_date_string(new Date()).replaceAll('-', '');
 
 var access_token = undefined;
 
@@ -40,7 +38,8 @@ async function main(){
 
     await web.init();
 
-    if (config.readOsudb){
+    
+    if (!existsSync(`beatmaps_osu_db.json`)){
         await jsons.read_osu_db();
         console.log('scan ended')
     }
@@ -225,6 +224,7 @@ async function download_beatmaps(mode = 0){
                 if (filesize_response.error){
                     log(filesize_response.error);
                     log(`waiting 30 minutes for retry.`);
+                    copy_beatmaps();
                     await sleep(1800);
                     continue checkmap;
                 }
