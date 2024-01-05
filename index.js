@@ -182,14 +182,18 @@ async function download_beatmaps(mode = 0){
             total = new_beatmaps.total;
         }
 
-        if (founded_maps.length>=50){
+        if (founded_maps && founded_maps.length>=50){
             cursor_string = new_beatmaps.cursor_string;
             log('more then 50 beatmaps. go to cursor');
+            
+            log(`found ${founded_maps.length} beatmaps`);      
+        } else {
+            cursor_string = null
+            log('founded maps 0');
+            continue;
         }
 
         save_last_cursor(cursor_string);
-        
-        log(`found ${founded_maps.length} beatmaps`);        
 
         let founded_beatmaps = 0;
 
@@ -210,7 +214,7 @@ async function download_beatmaps(mode = 0){
                     val.count_circles>min_circles
             });
             
-            if (beatmaps_selected.length == 0){
+            if (!beatmaps_selected || beatmaps_selected.length == 0){
                 continue;
             }
 
