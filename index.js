@@ -189,8 +189,8 @@ async function download_beatmaps(mode = 0){
             log(`found ${founded_maps.length} beatmaps`);      
         } else {
             cursor_string = null
-            log('founded maps 0');
-            continue;
+            log('founded maps 0, ended.');
+            break;
         }
 
         save_last_cursor(cursor_string);
