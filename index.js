@@ -65,7 +65,7 @@ async function main(){
 
     copy_beatmaps();
 
-    process.exit(0);
+    //process.exit(0);
 }
 
 const save_last_cursor = (cursor) => {
@@ -97,7 +97,7 @@ async function download_beatmaps(mode = 0){
 
     const down_continue = args.continue || defaults.is_continue;
 
-    var found_maps_counter = 0;
+    let found_maps_counter = 0;
 
     if (down_continue === 'no') {
         try{ 
@@ -105,7 +105,7 @@ async function download_beatmaps(mode = 0){
         } catch (e) {}
     }
 
-    var cursor_string = args.cursor || load_last_cursor().cursor;
+    let cursor_string = args.cursor || load_last_cursor().cursor;
 
     log(cursor_string)
 
@@ -137,7 +137,7 @@ async function download_beatmaps(mode = 0){
             break;
     }
 
-    var status = 'ranked';
+    let status = 'ranked';
 
     switch (args.status){
         case 'qualified':
@@ -162,31 +162,32 @@ async function download_beatmaps(mode = 0){
     'stars from',stars_min,'to',stars_max,'\n',
     'maps depth',maps_depth,'\n',)
     
-    var total = null;
+    let total = null;
 
     checkmap: while (1==1){
         log(`[query params]`);
         log(`cursor: ${cursor_string}`);
         
-        var new_beatmaps = (await v2.beatmap.search({
+        let new_beatmaps = await v2.beatmap.search({
             query: query,
             m: mode,
             s: status,
             cursor_string: cursor_string,
-        }));
+        }).catch( (rej) => {
+            throw new Error (rej);
+        });
         
-        let founded_maps = new_beatmaps.beatmapsets
-        var old_cursor = cursor_string;
+        let founded_maps = new_beatmaps?.beatmapsets;
+        let old_cursor = cursor_string;
 
         if (total === null) {
-            total = new_beatmaps.total;
+            total = new_beatmaps?.total;
         }
 
         if (founded_maps && founded_maps.length>=50){
             cursor_string = new_beatmaps.cursor_string;
             log('more then 50 beatmaps. go to cursor');
-            
-            log(`found ${founded_maps.length} beatmaps`);      
+            log(`found ${founded_maps.length} beatmaps`);
         } else {
             cursor_string = null
             log('founded maps 0, ended.');
