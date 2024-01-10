@@ -13,8 +13,9 @@ const download_path = require('./tools/download_path.js');
 const get_beatmap_size = require('./tools/get_beatmap_size.js');
 const web = require('./tools/web_controller.js');
 const get_file_size = require('./tools/get_file_size.js');
-const { readdirSync, copyFileSync, rmSync, writeFileSync, readFileSync, existsSync } = require('fs');
+const { copyFileSync, rmSync, writeFileSync, readFileSync, existsSync } = require('fs');
 const path = require('path');
+const { copy_beatmaps } = require('./tools/copy_beatmaps.js');
 
 const last_cursor_path = path.join(__dirname, 'data', 'last_cursor.json');
 const osu_db_path = path.join(__dirname, 'data', 'beatmaps_osu_db.json');
@@ -79,34 +80,6 @@ const load_last_cursor = () => {
     } catch (e) {
         return {cursor: null};
     }
-}
-
-const move_file_sync = (src, dest) => {
-    try{
-        log('move from',src);
-        log('move to', dest)
-        copyFileSync(src, dest);
-        rmSync(src);
-    } catch (e) {
-        if (e.code === 'EPERM'){
-            console.error('EPERM: operation not permitted', src, dest);
-        } else {
-            console.error(e);
-        }
-    }
-}
-
-const copy_beatmaps = () => {
-    return new Promise( (res, rej) => {
-
-        log('moving files to Songs..')
-        let files = readdirSync(config.download_folder, {encoding: 'utf8'});
-        for (let file of files ) {
-            move_file_sync(path.join(__dirname, config.download_folder, file), path.join(config.osuFolder, 'Songs', file));
-        }
-
-        res(true);
-    });
 }
 
 async function download_beatmaps(mode = 0){
@@ -229,10 +202,11 @@ async function download_beatmaps(mode = 0){
         let checked_beatmaps = 0;
         let founded_beatmaps = 0;
 
-        for (let newbeatmap of founded_maps){
+        for (let idx in founded_maps){
+
             checked_beatmaps++;
 
-            const beatmaps_selected = newbeatmap.beatmaps.filter( val => { 
+            const beatmaps_selected = founded_maps[idx].beatmaps.filter( val => { 
                 return val.mode_int === mode && 
                     val.difficulty_rating>=stars_min && 
                     val.difficulty_rating<=stars_max && 
@@ -245,23 +219,29 @@ async function download_beatmaps(mode = 0){
                 continue;
             }
 
-            if( !jsons.find(newbeatmap.id) && 
-                newbeatmap.favourite_count > FAV_COUNT_MIN &&
+            let beatmapset_id = founded_maps[idx].id;
+            let fav_count = founded_maps[idx].favourite_count;
+            let artist = founded_maps[idx].artist;
+            let title = founded_maps[idx].title;
+
+
+            if( !jsons.find(beatmapset_id) && 
+                fav_count > FAV_COUNT_MIN &&
                 beatmaps_selected.length > 0 ){
 
                 found_maps_counter = 0;
 
-                let osz_name = `${newbeatmap.id} ${escapeString(newbeatmap.artist)} - ${escapeString(newbeatmap.title)}.osz`;
+                let osz_name = `${beatmapset_id} ${escapeString(artist)} - ${escapeString(title)}.osz`;
                 let osz_full_path = `${download_path}\\${osz_name}`;
 
-                let filesize_response = config.is_file_size_requesting ? get_beatmap_size(access_token.access_token, newbeatmap.id) : {size: 0};
+                let filesize_response = config.is_file_size_requesting ? get_beatmap_size(access_token.access_token, beatmapset_id) : {size: 0};
 
                 if (filesize_response.error){
                     log(filesize_response.error);
                     log(`waiting 30 minutes for retry.`);
-                    if (config.is_copy_beatmaps) {
-                        await copy_beatmaps();
-                    }
+                    
+                    await copy_beatmaps();
+                    
                     await sleep(1800);
                     continue checkmap;
                 }
@@ -269,34 +249,31 @@ async function download_beatmaps(mode = 0){
                 let beatmap_size = Number(filesize_response.size);
                 let downloaded_bytes = 0;
 
-                web.update_beatmap(newbeatmap.id, 
+                web.update_beatmap(beatmapset_id, 
                 {
                     mode: mode, 
-                    artist: newbeatmap.artist, 
-                    title: newbeatmap.title,
+                    artist: artist, 
+                    title: title,
                     progress: downloaded_bytes,
                     filesize: beatmap_size
                 });
 
                 let lastInterval = setInterval( async ()=>{
                     downloaded_bytes = await get_file_size(osz_full_path);
-                    web.update_beatmap(newbeatmap.id, {progress: downloaded_bytes});
+                    web.update_beatmap(beatmapset_id, {progress: downloaded_bytes});
                 }, 300);
-                
-                log ('starting download',(beatmap_size/(1024*1024)).toFixed(2),'MB');
 
-                let is_download_failed = await beatmap_download(newbeatmap.id , osz_full_path);                
+                let is_download_failed = await beatmap_download(beatmapset_id ,osz_full_path, beatmap_size);                
 
                 if (!is_download_failed && status !== 'qualified') {
-                    jsons.add(newbeatmap.id);
+                    jsons.add(beatmapset_id);
                 }
 
                 clearInterval(lastInterval);
-                web.update_beatmap(newbeatmap.id, {progress: beatmap_size});
+                web.update_beatmap(beatmapset_id, {progress: beatmap_size});
 
-                if ( ! await check_response(is_download_failed, osz_name)){
-                    continue checkmap;
-                }
+                await check_response(is_download_failed, osz_name);
+                
             } else {
                 founded_beatmaps++;
             }
