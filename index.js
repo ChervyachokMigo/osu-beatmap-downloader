@@ -259,6 +259,8 @@ async function download_beatmaps(mode = 0){
                     web.update_beatmap(beatmapset_id, {progress: downloaded_bytes});
                 }, 300);
 
+                await dashboard.css_apply({selector: 'body', prop: 'background', value: `no-repeat url("https://assets.ppy.sh/beatmaps/${beatmapset_id}/covers/raw.jpg");`});
+
                 let is_download_failed = await beatmap_download(beatmapset_id ,osz_full_path, beatmap_size);                
 
                 if (!is_download_failed && status !== 'qualified') {
@@ -267,7 +269,7 @@ async function download_beatmaps(mode = 0){
 
                 clearInterval(lastInterval);
                 web.update_beatmap(beatmapset_id, {progress: beatmap_size});
-
+                
                 await check_response(is_download_failed, osz_name);
 
             } else {
