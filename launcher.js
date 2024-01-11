@@ -143,7 +143,7 @@ const command_build = () => {
 
     command.push(command_props.is_continue.variants[menu_props.continue].args);
 
-    return `electron . --${command.join(' --')}`;
+    return `start http://localhost:4441 && electron . --${command.join(' --')}`;
 }
 
 const refresh = () => {

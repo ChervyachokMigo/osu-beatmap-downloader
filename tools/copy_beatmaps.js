@@ -26,7 +26,7 @@ const copy_beatmaps = () => {
             let files = readdirSync(config.download_folder, { encoding: 'utf8' });
             for (let file of files) {
                 move_file_sync({
-                    src: path.join(__dirname, config.download_folder, file), 
+                    src: path.join(__dirname, '..', config.download_folder, file), 
                     dest: path.join(config.osuFolder, 'Songs', file)
                 });
             }

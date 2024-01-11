@@ -282,7 +282,5 @@ module.exports = {
         return findbeatmap(id);
     },
 
-    read_osu_db: async function (){
-        await read_osu_db();
-    }
+    read_osu_db,
 }

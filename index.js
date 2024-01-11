@@ -1,6 +1,6 @@
 const { clearInterval } = require('timers');
 const minimist = require('minimist');
-const { v2, auth } = require ('osu-api-extended');
+const { v2 } = require ('osu-api-extended');
 
 const defaults = require('./misc/const_defaults.js');
 const jsons = require(`./tools/jsons.js`);
@@ -13,39 +13,38 @@ const download_path = require('./tools/download_path.js');
 const get_beatmap_size = require('./tools/get_beatmap_size.js');
 const web = require('./tools/web_controller.js');
 const get_file_size = require('./tools/get_file_size.js');
-const { copyFileSync, rmSync, writeFileSync, readFileSync, existsSync } = require('fs');
+const { rmSync, writeFileSync, readFileSync, existsSync } = require('fs');
 const path = require('path');
 const { copy_beatmaps } = require('./tools/copy_beatmaps.js');
 
-const last_cursor_path = path.join(__dirname, 'data', 'last_cursor.json');
+const dashboard = require('dashboard_framework');
+const { save_last_cursor, load_last_cursor, is_continue_from_cursor } = require('./tools/cursor.js');
+const { get_osu_token, auth_osu } = require('./tools/osu_auth.js');
+const { dashboard_init } = require('./tools/dashboard_init.js');
+
 const osu_db_path = path.join(__dirname, 'data', 'beatmaps_osu_db.json');
 
 checkDir(download_path);
 checkDir(path.join(__dirname, 'data'));
 
-let access_token = undefined;
-
-const auth_osu = async (login, password)=>{
-    let token = await auth.login_lazer(login, password);
-    if (typeof token.access_token == 'undefined'){
-        log('no auth osu. trying again...');
-        return await auth_osu( login, password );
-    } else {
-        return token
-    }
-}
+const str_modes = ['osu', 'taiko', 'fruits', 'mania'];
 
 async function main(){
+    await dashboard_init();
     
-    access_token = await auth_osu(config.login, config.password);
+    await auth_osu();
+    await dashboard.change_status({name: 'osu_auth', status: 'on'});
 
     await web.init();
 
     
     if (!existsSync(osu_db_path)){
+        await dashboard.change_status({name: 'db_scan', status: 'scaning'});
         await jsons.read_osu_db();
-        console.log('scan ended')
+        console.log('scan ended');
     }
+
+    await dashboard.change_status({name: 'db_scan', status: 'ready'});
 
     const args = minimist(process.argv.slice(2));
     
@@ -69,20 +68,8 @@ async function main(){
     //process.exit(0);
 }
 
-const save_last_cursor = (cursor) => {
-    writeFileSync(last_cursor_path, JSON.stringify ({cursor}), {encoding: 'utf8'});
-}
-
-const load_last_cursor = () => {
-    try {
-        const res = readFileSync(last_cursor_path, {encoding: 'utf8'});
-        return JSON.parse(res);
-    } catch (e) {
-        return {cursor: null};
-    }
-}
-
 async function download_beatmaps(mode = 0){
+    
     const args = minimist(process.argv.slice(2));
 
     const FAV_COUNT_MIN = args.fav_count_min || config.fav_count_min || defaults.fav_count_min;
@@ -96,18 +83,19 @@ async function download_beatmaps(mode = 0){
 
     const query = strict ? '"'+args.query+'"' : args.query || undefined;
 
-    const down_continue = args.continue || defaults.is_continue;
+    await dashboard.change_text_item({name: 'fav_count_min', item_name: 'current', text: `${FAV_COUNT_MIN}`});
+    await dashboard.change_text_item({name: 'stars', item_name: 'current', text: `★${stars_min}-${stars_max}`});
+    await dashboard.change_text_item({name: 'maps_depth', item_name: 'current', text: `${maps_depth} страниц (${maps_depth * 50} карт)`});
+    await dashboard.change_text_item({name: 'min_circles', item_name: 'current', text: `${min_circles}`});
+    await dashboard.change_text_item({name: 'min_length', item_name: 'current', text: `${min_length} сек`});
 
     let found_maps_counter = 0;
 
-    if (down_continue === 'no') {
-        try{ 
-            rmSync(last_cursor_path);
-        } catch (e) {}
-    }
+    is_continue_from_cursor(args.continue || defaults.is_continue)
 
-    let cursor_string = args.cursor || load_last_cursor().cursor;
+    let cursor_string = args.cursor || load_last_cursor();
 
+    await dashboard.change_text_item({name: 'cursor_string', item_name: 'last', text: `${cursor_string}`});
     log(cursor_string)
 
     switch (mode){
@@ -135,6 +123,7 @@ async function download_beatmaps(mode = 0){
         case '0':
             mode = 0;
         default:
+            mode = 0;
             break;
     }
 
@@ -153,7 +142,8 @@ async function download_beatmaps(mode = 0){
             break;
     }
 
-
+    await dashboard.change_status({name: 'download_status', status: status});
+    await dashboard.change_status({name: 'download_mode', status: str_modes[mode]});
 
     log('[settings]','\n',
     'query',query,'\n',
@@ -182,6 +172,7 @@ async function download_beatmaps(mode = 0){
 
         if (total === null) {
             total = new_beatmaps?.total;
+            await dashboard.change_text_item({name: 'total_maps', item_name: 'current', text: `${total}`});
         }
 
         if (founded_maps && founded_maps.length>=50){
@@ -197,6 +188,7 @@ async function download_beatmaps(mode = 0){
             break;
         }
 
+        await dashboard.change_text_item({name: 'cursor_string', item_name: 'last', text: `${cursor_string}`});
         save_last_cursor(cursor_string);
 
         let checked_beatmaps = 0;
@@ -234,15 +226,17 @@ async function download_beatmaps(mode = 0){
                 let osz_name = `${beatmapset_id} ${escapeString(artist)} - ${escapeString(title)}.osz`;
                 let osz_full_path = `${download_path}\\${osz_name}`;
 
-                let filesize_response = config.is_file_size_requesting ? get_beatmap_size(access_token.access_token, beatmapset_id) : {size: 0};
+                let filesize_response = config.is_file_size_requesting ? get_beatmap_size(get_osu_token(), beatmapset_id) : {size: 0};
 
                 if (filesize_response.error){
                     log(filesize_response.error);
                     log(`waiting 30 minutes for retry.`);
-                    
+                    await dashboard.change_status({name: 'download_quota', status: 'quota'});
+
                     await copy_beatmaps();
                     
                     await sleep(1800);
+                    await dashboard.change_status({name: 'download_quota', status: 'ready'});
                     continue checkmap;
                 }
                 
@@ -273,7 +267,7 @@ async function download_beatmaps(mode = 0){
                 web.update_beatmap(beatmapset_id, {progress: beatmap_size});
 
                 await check_response(is_download_failed, osz_name);
-                
+
             } else {
                 founded_beatmaps++;
             }
@@ -283,10 +277,11 @@ async function download_beatmaps(mode = 0){
             found_maps_counter++;
         }
 
-        total -= founded_maps.length;
-
         log ('you have',founded_beatmaps,'of',checked_beatmaps,'beatmaps');
+
+        total -= founded_maps.length;
         log(`${total} beatmaps left`);
+        await dashboard.change_text_item({name: 'total_maps', item_name: 'current', text: `${total}`});
 
         if ( found_maps_counter > maps_depth || total <= 0 || cursor_string === null || cursor_string === undefined) {
             log('ended');
