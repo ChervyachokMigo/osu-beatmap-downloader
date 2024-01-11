@@ -236,7 +236,9 @@ async function download_beatmaps(mode = 0){
                     await copy_beatmaps();
                     
                     await sleep(1800);
+
                     await dashboard.change_status({name: 'download_quota', status: 'ready'});
+                    
                     continue checkmap;
                 }
                 

@@ -18,6 +18,7 @@ module.exports =  async function check_response (response, beatmapname) {
             await dashboard.change_status('download_quota', 'quota');
             
             await copy_beatmaps();
+            
             await sleep(1800);
             
             await dashboard.change_status('download_quota', 'ready');
