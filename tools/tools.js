@@ -26,20 +26,24 @@ module.exports = {
         return text?text.replace(/[&\/\\#+$~%'":*?<>{}|]/g, ''):'';
     },
 
-    sleep: async function (seconds) {
-        return new Promise((resolve) => {
-          setTimeout(resolve, seconds*1000);
+    sleep: async (seconds) => {
+        return new Promise( (resolve) => {
+            setTimeout(resolve, seconds * 1000);
         });
     },
-      
+
     log: function (...string){
         console.log( `[${get_time_string(new Date()).yellow}]`, string.join(' ') );
     },
 
     checkDir: function(path){
         if (!fs.existsSync(`${path}`)) { fs.mkdirSync(`${path}`, {recursive: true});}
-    }
-    
+    },
+
+    formatPercent: (current, max, digits) => {
+        return (current / max * 100).toFixed(digits)
+    },
+
 }
 
 function get_time_string(date){

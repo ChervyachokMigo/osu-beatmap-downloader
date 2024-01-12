@@ -22,7 +22,7 @@ const move_file_sync = ({ src, dest }) => {
     }
 };
 
-const copy_beatmaps = () => {
+const copy_beatmaps = async () => {
     if (config.is_copy_beatmaps) {
         return new Promise((res, rej) => {
 
@@ -40,7 +40,7 @@ const copy_beatmaps = () => {
             res(true);
         });
     } else {
-        res (false);
+        return false;
     }
 };
 

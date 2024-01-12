@@ -4,7 +4,7 @@ const { v2 } = require ('osu-api-extended');
 
 const defaults = require('./misc/const_defaults.js');
 const jsons = require(`./tools/jsons.js`);
-const { escapeString, log, checkDir, sleep } = require(`./tools/tools.js`);
+const { escapeString, log, checkDir, sleep, formatPercent } = require(`./tools/tools.js`);
 const config = require('./config.js');
 const beatmap_download = require('./tools/beatmap_download.js');
 const check_response = require('./tools/check_response.js');
@@ -13,7 +13,7 @@ const download_path = require('./tools/download_path.js');
 const get_beatmap_size = require('./tools/get_beatmap_size.js');
 const web = require('./tools/web_controller.js');
 const get_file_size = require('./tools/get_file_size.js');
-const { rmSync, writeFileSync, readFileSync, existsSync } = require('fs');
+const { existsSync } = require('fs');
 const path = require('path');
 const { copy_beatmaps } = require('./tools/copy_beatmaps.js');
 
@@ -154,6 +154,7 @@ async function download_beatmaps(mode = 0){
     'maps depth',maps_depth,'\n',)
     
     let total = null;
+    let max_maps = 1;
 
     checkmap: while (1==1){
         log(`requesting for cursor: ${cursor_string}`);
@@ -172,6 +173,11 @@ async function download_beatmaps(mode = 0){
 
         if (total === null) {
             total = new_beatmaps?.total;
+            max_maps = new_beatmaps?.total;
+            if (total > maps_depth * 50) {
+                total = maps_depth * 50;
+                max_maps = maps_depth * 50;
+            }
             await dashboard.change_text_item({name: 'total_maps', item_name: 'current', text: `${total}`});
         }
 
@@ -216,7 +222,6 @@ async function download_beatmaps(mode = 0){
             let artist = founded_maps[idx].artist;
             let title = founded_maps[idx].title;
 
-
             if( !jsons.find(beatmapset_id) && 
                 fav_count > FAV_COUNT_MIN &&
                 beatmaps_selected.length > 0 ){
@@ -245,6 +250,12 @@ async function download_beatmaps(mode = 0){
                 let beatmap_size = Number(filesize_response.size);
                 let downloaded_bytes = 0;
 
+                await dashboard.css_apply({
+                    selector: 'body', 
+                    prop: 'background-image', 
+                    value: `url(https://assets.ppy.sh/beatmaps/${beatmapset_id}/covers/raw.jpg)`
+                });
+
                 web.update_beatmap(beatmapset_id, 
                 {
                     mode: mode, 
@@ -258,8 +269,6 @@ async function download_beatmaps(mode = 0){
                     downloaded_bytes = await get_file_size(osz_full_path);
                     web.update_beatmap(beatmapset_id, {progress: downloaded_bytes});
                 }, 300);
-
-                await dashboard.css_apply({selector: 'body', prop: 'background', value: `no-repeat url("https://assets.ppy.sh/beatmaps/${beatmapset_id}/covers/raw.jpg");`});
 
                 let is_download_failed = await beatmap_download(beatmapset_id ,osz_full_path, beatmap_size);                
 
@@ -285,7 +294,8 @@ async function download_beatmaps(mode = 0){
 
         total -= founded_maps.length;
         log(`${total} beatmaps left`);
-        await dashboard.change_text_item({name: 'total_maps', item_name: 'current', text: `${total}`});
+
+        await dashboard.change_text_item({name: 'total_maps', item_name: 'current', text: `${total}/${max_maps} (${formatPercent(total, max_maps, 2)}%)`});
 
         if ( found_maps_counter > maps_depth || total <= 0 || cursor_string === null || cursor_string === undefined) {
             log('ended');
