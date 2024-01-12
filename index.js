@@ -174,10 +174,10 @@ async function download_beatmaps(mode = 0){
         if (total === null) {
             total = new_beatmaps?.total;
             max_maps = new_beatmaps?.total;
-            if (total > maps_depth * 50) {
+            /*if (total > maps_depth * 50) {
                 total = maps_depth * 50;
                 max_maps = maps_depth * 50;
-            }
+            }*/
             await dashboard.change_text_item({name: 'total_maps', item_name: 'current', text: `${total}`});
         }
 
@@ -256,11 +256,18 @@ async function download_beatmaps(mode = 0){
                     value: `url(https://assets.ppy.sh/beatmaps/${beatmapset_id}/covers/raw.jpg)`
                 });
 
+                await dashboard.emit_event({
+                    feedname: 'last_beatmaps',
+                    type: 'beatmap',
+                    title: `${artist} - ${title}`,
+                    url: `https://osu.ppy.sh/beatmapsets/${beatmapset_id}`
+                });
+
                 web.update_beatmap(beatmapset_id, 
                 {
-                    mode: mode, 
-                    artist: artist, 
-                    title: title,
+                    mode, 
+                    artist, 
+                    title,
                     progress: downloaded_bytes,
                     filesize: beatmap_size
                 });

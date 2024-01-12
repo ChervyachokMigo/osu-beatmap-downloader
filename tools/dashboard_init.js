@@ -121,6 +121,7 @@ module.exports = {
                 ]
             },
         ]);
-
+        await dashboard.css_apply({selector: 'body', prop: 'background-color', value: '#313131'});
+        await dashboard.create_feed({feedname: 'last_beatmaps'});
     }
 }
