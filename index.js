@@ -200,7 +200,7 @@ async function download_beatmaps(mode = 0){
         let checked_beatmaps = 0;
         let founded_beatmaps = 0;
 
-        for (let idx in founded_maps){
+        for (let idx = 0; idx < founded_maps.length; idx++){
 
             checked_beatmaps++;
 
@@ -244,6 +244,8 @@ async function download_beatmaps(mode = 0){
 
                     await dashboard.change_status({name: 'download_quota', status: 'ready'});
                     
+                    cursor_string = old_cursor;
+
                     continue checkmap;
                 }
                 
@@ -285,8 +287,16 @@ async function download_beatmaps(mode = 0){
 
                 clearInterval(lastInterval);
                 web.update_beatmap(beatmapset_id, {progress: beatmap_size});
+
+                if (is_download_failed) {
+                    idx--;
+                    await dashboard.change_status('download_quota', 'quota');
+                    await check_response(is_download_failed, osz_name);
+                    await dashboard.change_status('download_quota', 'ready');
+                }
                 
-                await check_response(is_download_failed, osz_name);
+
+                
 
             } else {
                 founded_beatmaps++;
