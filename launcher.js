@@ -124,6 +124,7 @@ const command_props = {
 const load_presets = () => {
     command_props.presets.variants = 
         command_props.presets.variants.concat(JSON.parse(readFileSync(path.join('data', 'presets.json'), {encoding: 'utf8'})));
+    command_props.presets.apply();
 }
 
 const numbers = '0123456789';
