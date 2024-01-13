@@ -1,4 +1,4 @@
-const { clearInterval } = require('timers');
+
 const minimist = require('minimist');
 const { v2 } = require ('osu-api-extended');
 
@@ -11,7 +11,7 @@ const check_response = require('./tools/check_response.js');
 const download_path = require('./tools/download_path.js');
 
 const get_beatmap_size = require('./tools/get_beatmap_size.js');
-const web = require('./tools/web_controller.js');
+
 const get_file_size = require('./tools/get_file_size.js');
 const { existsSync } = require('fs');
 const path = require('path');
@@ -35,7 +35,6 @@ async function main(){
     await auth_osu();
     await dashboard.change_status({name: 'osu_auth', status: 'on'});
 
-    await web.init();
 
     
     if (!existsSync(osu_db_path)){
@@ -174,10 +173,7 @@ async function download_beatmaps(mode = 0){
         if (total === null) {
             total = new_beatmaps?.total;
             max_maps = new_beatmaps?.total;
-            /*if (total > maps_depth * 50) {
-                total = maps_depth * 50;
-                max_maps = maps_depth * 50;
-            }*/
+
             await dashboard.change_text_item({name: 'total_maps', item_name: 'current', text: `${total}`});
         }
 
@@ -249,7 +245,6 @@ async function download_beatmaps(mode = 0){
                 }
                 
                 let beatmap_size = Number(filesize_response.size);
-                let downloaded_bytes = 0;
 
                 await dashboard.css_apply({
                     selector: 'body', 
@@ -263,20 +258,6 @@ async function download_beatmaps(mode = 0){
                     title: `${artist} - ${title}`,
                     url: `https://osu.ppy.sh/beatmapsets/${beatmapset_id}`
                 });
-
-                web.update_beatmap(beatmapset_id, 
-                {
-                    mode, 
-                    artist, 
-                    title,
-                    progress: downloaded_bytes,
-                    filesize: beatmap_size
-                });
-
-                let lastInterval = setInterval( async ()=>{
-                    downloaded_bytes = await get_file_size(osz_full_path);
-                    web.update_beatmap(beatmapset_id, {progress: downloaded_bytes});
-                }, 300);
 
                 let is_download_failed = await beatmap_download(beatmapset_id ,osz_full_path, beatmap_size);                
 
@@ -293,9 +274,6 @@ async function download_beatmaps(mode = 0){
                     //successful download qualified map
                     //no action
                 }
-
-                clearInterval(lastInterval);
-                web.update_beatmap(beatmapset_id, {progress: beatmap_size});
 
             } else {
                 founded_beatmaps++;

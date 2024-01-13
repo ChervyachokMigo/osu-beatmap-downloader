@@ -6,6 +6,9 @@ module.exports = async (path) => {
             if (err) {
                 res(0);
             }
+            if (typeof stats.size !== 'undefined'){
+                res(0)
+            }
             res(stats.size);
         });
     });
