@@ -116,8 +116,9 @@ const command_props = {
             }
             for (let action of enter_keys_actions){
                 if (action !== 'save'){
-                    enter_keys[action].enable = false;
-                    res[action] = enter_keys[action].text;
+                    if (enter_keys[action].text !== defaults[action]){
+                        res[action] = enter_keys[action].text;
+                    }
                 }
             }
             return res;
@@ -250,9 +251,12 @@ const toggle_action_input = (key_name, action_name, ch, key) => {
                     command_props.presets.variants = 
                         command_props.presets.variants.concat(command_props.presets.current() );
                     save_presets();
+                    menu_props.preset = command_props.presets.variants.length - 1;
+                    command_props.presets.apply();
                 }
                 enter_keys[action_name].text = '';
                 enter_keys['save'].enable = false;
+
             }
         }
     }
