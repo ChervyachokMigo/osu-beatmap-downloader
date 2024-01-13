@@ -22,8 +22,11 @@ module.exports =  async function check_response (response, beatmapname) {
             
             await sleep(1800);
             
+            res (true);
+        } else {
+            res (true);
         }
 
-        res (true);
+        
     });
 };

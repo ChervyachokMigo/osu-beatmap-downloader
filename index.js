@@ -67,6 +67,37 @@ async function main(){
     //process.exit(0);
 }
 
+function formatAddZero (t, symbols = 1) {
+    var result = t.toString();
+    var numberLength = t.toString().length;
+    if ( result.length < symbols){
+        for (var i = 0; i < symbols-numberLength; i++){
+            result = `0${result}`;
+        }
+    }
+    return result;
+}
+
+const formatTime = (time_ms) => {
+    const time_sec = Math.trunc(time_ms / 1000);
+    const time_min = Math.trunc(time_sec / 60);
+    const sec = time_sec % 60;
+    const min = time_min % 60;
+    return `${formatAddZero(min, 2)}:${formatAddZero(sec, 2)}`
+}
+
+const get_waiting_quota_time = (start_time, waiting_mins) => {
+    const waiting_ms = waiting_mins * 60 * 1000;
+    let current_time = new Date().getTime();
+    let diff_time = current_time - start_time;
+    let reverse_diff_time = waiting_ms - diff_time;
+    if (reverse_diff_time > waiting_ms) {
+        return formatTime(0);
+    } else {
+        return formatTime(reverse_diff_time);
+    }
+}
+
 async function download_beatmaps(mode = 0){
     
     const args = minimist(process.argv.slice(2));
@@ -265,9 +296,23 @@ async function download_beatmaps(mode = 0){
                 if (is_download_failed) {
                     //failed download map
                     idx--;
-                    await dashboard.change_status('download_quota', 'quota');
+                    await dashboard.change_status({name: 'download_quota', status: 'quota'});
+                    let start_waiting_time = new Date().getTime();
+                    let waiting_quota_interval = setInterval( async () => {
+                        await dashboard.change_text_item({
+                            name: 'download_quota', 
+                            item_name: 'quota', 
+                            text: `предел, ожидание ${get_waiting_quota_time(start_waiting_time, 30)}`
+                        });
+                    }, 1000);
                     await check_response(is_download_failed, osz_name);
-                    await dashboard.change_status('download_quota', 'ready');
+                    await dashboard.change_status({name: 'download_quota', status: 'ready'});
+                    await dashboard.change_text_item({
+                        name: 'download_quota', 
+                        item_name: 'quota', 
+                        text: `предел`
+                    });
+                    clearInterval(waiting_quota_interval);
                 } else if (!is_download_failed && status !== 'qualified') {
                     //successful download map not qualified map
                     jsons.add(beatmapset_id);
