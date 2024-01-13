@@ -255,7 +255,8 @@ async function download_beatmaps(mode = 0){
                 await dashboard.emit_event({
                     feedname: 'last_beatmaps',
                     type: 'beatmap',
-                    title: `${artist} - ${title}`,
+                    title: `${title}`,
+                    desc: `${artist}`,
                     url: `https://osu.ppy.sh/beatmapsets/${beatmapset_id}`
                 });
 
