@@ -222,9 +222,8 @@ async function download_beatmaps(mode = 0){
             let artist = founded_maps[idx].artist;
             let title = founded_maps[idx].title;
 
-            if( !jsons.find(beatmapset_id) && 
-                fav_count > FAV_COUNT_MIN &&
-                beatmaps_selected.length > 0 ){
+            if( beatmaps_selected.length > 0 && fav_count > FAV_COUNT_MIN && 
+                !jsons.find(beatmapset_id) ){
 
                 found_maps_counter = 0;
 
@@ -281,22 +280,22 @@ async function download_beatmaps(mode = 0){
 
                 let is_download_failed = await beatmap_download(beatmapset_id ,osz_full_path, beatmap_size);                
 
-                if (!is_download_failed && status !== 'qualified') {
-                    jsons.add(beatmapset_id);
-                }
-
-                clearInterval(lastInterval);
-                web.update_beatmap(beatmapset_id, {progress: beatmap_size});
-
                 if (is_download_failed) {
+                    //failed download map
                     idx--;
                     await dashboard.change_status('download_quota', 'quota');
                     await check_response(is_download_failed, osz_name);
                     await dashboard.change_status('download_quota', 'ready');
+                } else if (!is_download_failed && status !== 'qualified') {
+                    //successful download map not qualified map
+                    jsons.add(beatmapset_id);
+                } else {
+                    //successful download qualified map
+                    //no action
                 }
-                
 
-                
+                clearInterval(lastInterval);
+                web.update_beatmap(beatmapset_id, {progress: beatmap_size});
 
             } else {
                 founded_beatmaps++;
