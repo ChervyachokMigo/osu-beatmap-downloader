@@ -8,7 +8,11 @@ const { copy_beatmaps } = require('./copy_beatmaps.js');
 module.exports =  async function check_response (response, beatmapname) {
     return new Promise ( async ( res, rej) => {
         if (response) {
-            fs.rmSync(`${download_path}\\${beatmapname}`);
+            try {
+                fs.rmSync(`${download_path}\\${beatmapname}`);
+            } catch (e) {
+                console.error(e);
+            }
 
             log(`${await downloadquota()} quota used`);
             log(response);
