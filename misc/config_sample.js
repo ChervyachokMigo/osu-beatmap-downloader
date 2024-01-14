@@ -17,7 +17,7 @@ module.exports = {
     //автоманическое перемещение скачаных карт
     is_copy_beatmaps: true,
     //проверка размера файла (тратится квота скачивания с банчо, если отключить, то будет в 2 раза больше скачиваться до потери квоты)
-    is_file_size_requesting: true,
+    is_file_size_requesting: false,
     //подробная информация о копировании
     is_detail_copy_log: false,
 

@@ -44,8 +44,9 @@ module.exports = {
             {
                 name: 'download_mode',
                 text: '[Параметры] Режим игры',
-                status: null,
+                status: 'not',
                 values: [
+                    { name: 'not', color: colors.neutral, text: 'пока не установлен' },
                     { name: 'osu', color: colors.neutral, text: 'osu standart' },
                     { name: 'taiko', color: colors.neutral, text: 'osu taiko' },
                     { name: 'fruits', color: colors.neutral, text: 'Catch The Beats' },
@@ -55,8 +56,9 @@ module.exports = {
             {
                 name: 'download_status',
                 text: '[Параметры] Статус',
-                status: 'ranked',
+                status: 'not',
                 values: [
+                    { name: 'not', color: colors.neutral, text: 'пока не установлен' },
                     { name: 'ranked', color: colors.neutral, text: 'Ranked' },
                     { name: 'loved', color: colors.neutral, text: 'Loved' },
                     { name: 'pending', color: colors.neutral, text: 'Pending' },

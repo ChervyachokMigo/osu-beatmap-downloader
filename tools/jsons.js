@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const dashboard = require('dashboard_framework');
+
 const osu_db_path = path.join('data', 'beatmaps_osu_db.json');
 const beatmaplist_path =  path.join('data', 'beatmapslist.json'); 
 
@@ -116,7 +118,9 @@ async function readOsuDbAndSaveJson(){
 
 	for (let nb = 1; nb <= db.NumberBeatmaps; nb++){
 		if (nb % 1000 === 0) {
-			console.log(`scanning ${(nb/db.NumberBeatmaps*100).toFixed(1)} %`);
+			let scanning_text = `${(nb/db.NumberBeatmaps*100).toFixed(1)} %`;
+			dashboard.change_text_item({name: 'db_scan', item_name: 'scaning', text: `сканирование ${scanning_text}`});
+			console.log('scanning', scanning_text);
 		}
         
 		try{
