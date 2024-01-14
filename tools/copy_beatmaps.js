@@ -3,8 +3,6 @@ const config = require('../config.js');
 const { readdirSync, copyFileSync, rmSync } = require('fs');
 const path = require('path');
 
-
-
 const move_file_sync = ({ src, dest }) => {
     try{
         if (config.is_detail_copy_log){

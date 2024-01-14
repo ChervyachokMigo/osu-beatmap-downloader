@@ -257,7 +257,10 @@ async function download_beatmaps(mode = 0){
                     type: 'beatmap',
                     title: `${title}`,
                     desc: `${artist}`,
-                    url: `https://osu.ppy.sh/beatmapsets/${beatmapset_id}`
+                    url: {
+                        href: `https://osu.ppy.sh/beatmapsets/${beatmapset_id}`,
+                    },
+                    icon: `https://assets.ppy.sh/beatmaps/${beatmapset_id}/covers/card.jpg`
                 });
 
                 let is_download_failed = await beatmap_download(beatmapset_id ,osz_full_path, beatmap_size);                
