@@ -1,4 +1,5 @@
 const dashboard = require('dashboard_framework');
+const { WEBPORT, SOCKETPORT, DEBUG_DASHBOARD } = require('../config.js');
 
 module.exports = {
     dashboard_init: async () => {
@@ -9,9 +10,10 @@ module.exports = {
             neutral: [97, 97, 97]
         };
 
-        dashboard.settings.set({ debug: true });
+        await dashboard.run(WEBPORT, SOCKETPORT);
 
-        await dashboard.run(4441, 4442);
+        await dashboard.set_setting({ name: 'debug', value: DEBUG_DASHBOARD });
+
         await dashboard.set_status([
             {
                 name: 'osu_auth',

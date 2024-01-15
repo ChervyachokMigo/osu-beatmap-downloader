@@ -4,6 +4,7 @@ const keypress = require('keypress');
 const { readFileSync, writeFileSync } = require('fs');
 const colors = require('colors');
 const path = require('path');
+const { WEBPORT } = require('./config.js');
 
 const presets_path = path.join('data', 'presets.json');
 
@@ -180,7 +181,7 @@ const command_build = () => {
 
     command.push(command_props.is_continue.variants[menu_props.continue].args);
 
-    return `start http://localhost:4441 && node index.js --${command.join(' --')}`;
+    return `start http://localhost:${WEBPORT} && node index.js --${command.join(' --')}`;
 }
 
 const refresh = () => {

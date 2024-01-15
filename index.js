@@ -34,8 +34,6 @@ async function main(){
     
     await auth_osu();
     await dashboard.change_status({name: 'osu_auth', status: 'on'});
-
-
     
     if (!existsSync(osu_db_path)){
         await dashboard.change_status({name: 'db_scan', status: 'scaning'});

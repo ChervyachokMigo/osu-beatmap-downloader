@@ -82,6 +82,14 @@ module.exports = {
         const sec = time_sec % 60;
         const min = time_min % 60;
         return `${formatAddZero(min, 2)}:${formatAddZero(sec, 2)}`
+    },
+
+    get_value_by_key: (object, value) => {
+        if(Object.keys(object).find( key => key === value)){
+            return object[value];
+        } else {
+            return null;
+        }
     }
 
 }
