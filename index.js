@@ -29,6 +29,15 @@ checkDir(path.join(__dirname, 'data'));
 
 const str_modes = ['osu', 'taiko', 'fruits', 'mania'];
 
+const end_process = async () => {
+    await dashboard.emit_event({
+        feedname: 'last_beatmaps',
+        type: 'end',
+        title: `Скачивание закончено`,
+    });
+    await dashboard.change_status({name: 'total_maps', status: 'end'});
+}
+
 async function main(){
     await dashboard_init();
     
@@ -61,6 +70,8 @@ async function main(){
     if (config.is_copy_beatmaps) {
         await copy_beatmaps();
     }
+
+    await end_process()
 
     //process.exit(0);
 }
@@ -139,7 +150,7 @@ async function download_beatmaps(mode = 0){
             break;
     }
 
-    await dashboard.change_status({name: 'download_status', status: status});
+    await dashboard.change_status({name: 'download_status', status});
     await dashboard.change_status({name: 'download_mode', status: str_modes[mode]});
 
     log('[settings]','\n',

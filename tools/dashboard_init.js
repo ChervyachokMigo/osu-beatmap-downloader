@@ -121,7 +121,8 @@ module.exports = {
                 text: 'Осталось карт',
                 status: 'current',
                 values: [
-                    { name: 'current', color: colors.neutral, text: '0' }
+                    { name: 'current', color: colors.neutral, text: '0' },
+                    { name: 'end', color: colors.neutral, text: 'Операция завершена' }
                 ]
             },
         ]);
