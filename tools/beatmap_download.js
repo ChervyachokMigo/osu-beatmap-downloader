@@ -2,7 +2,7 @@ const fs = require('fs');
 var { v2 } = require('osu-api-extended');
 var { log } = require(`./tools.js`);
 
-module.exports = async function beatmap_download(id, path, size) {
+module.exports = async function beatmap_download(id, path, size = 0) {
     return await new Promise(async (res, rej) => {
         try {
 
