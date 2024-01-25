@@ -24,7 +24,7 @@ function parse_list(list_filename){
     try{
         const data = readFileSync(list_filename, {encoding: 'utf8'});
         const rows = data.split('\n').map( v => Number(v));
-        return rows.filter((v, i) => rows.indexOf(v) === i).sort( (a, b) => a - b);
+        return rows.filter((v, i) => rows.indexOf(v) === i && v !== 0).sort( (a, b) => a - b);
     } catch (e){
         throw new Error(e);
     }
@@ -47,12 +47,8 @@ async function main(){
 
     const beatmapset_id_list = parse_list(downloads_list);
 
-    for (let id of beatmapset_id_list){
-        if (isNaN(id)){
-            continue;
-        }
-        
-        const response_beatmap_info = await v2.beatmap.set(id);    
+    for (let id of beatmapset_id_list){        
+        const response_beatmap_info = await v2.beatmap.set(id);
         const osz_name = 
         `${id} ${escapeString(response_beatmap_info.artist)} - ${escapeString(response_beatmap_info.title)}.osz`;
 
@@ -69,3 +65,4 @@ async function main(){
 }
 
 main();
+
