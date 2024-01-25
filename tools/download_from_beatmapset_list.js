@@ -48,7 +48,10 @@ async function main(){
     const beatmapset_id_list = parse_list(downloads_list);
 
     for (let id of beatmapset_id_list){
-
+        if (isNaN(id)){
+            continue;
+        }
+        
         const response_beatmap_info = await v2.beatmap.set(id);    
         const osz_name = 
         `${id} ${escapeString(response_beatmap_info.artist)} - ${escapeString(response_beatmap_info.title)}.osz`;
