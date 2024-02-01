@@ -21,7 +21,6 @@ const dashboard = require('dashboard_framework');
 const { save_last_cursor, load_last_cursor, is_continue_from_cursor } = require('./tools/cursor.js');
 const { get_osu_token, auth_osu } = require('./tools/osu_auth.js');
 const { dashboard_init } = require('./tools/dashboard_init.js');
-const tools = require('./tools/tools.js');
 
 const osu_db_path = path.join(__dirname, 'data', 'beatmaps_osu_db.json');
 
@@ -40,6 +39,16 @@ const end_process = async () => {
 }
 
 async function main(){
+    if (!existsSync(config.osuFolder)){
+        log(`[config: osuFolder] ${config.osuFolder} не существует`);
+        await sleep(99999);
+    }
+
+    if (!existsSync(path.join(config.osuFolder, 'Songs'))){
+        log(`[config: osuFolder/Songs] ${path.join(config.osuFolder, 'Songs')} не существует`);
+        await sleep(99999);
+    }
+
     await dashboard_init();
     
     await auth_osu();
@@ -72,7 +81,7 @@ async function main(){
         await copy_beatmaps();
     }
 
-    await end_process()
+    await end_process();
 
     //process.exit(0);
 }
