@@ -16,7 +16,7 @@ const login_osu = async () => {
         log('no auth osu. trying again...');
         await login_osu();
     } else {
-        expires_in = new Date().getTime() + access_token.expires_in;
+        expires_in = new Date().getTime() + access_token.expires_in*1000;
         writeFileSync(osu_token_path, JSON.stringify({access_token, time: expires_in}), { encoding: 'utf8'});
     }
 }
