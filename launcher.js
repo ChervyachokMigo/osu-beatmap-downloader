@@ -60,6 +60,7 @@ const command_props = {
         variants: [
             { text: 'all', args: 'mode std,taiko,mania,fruits' },
             { text: 'std,taiko,mania', args: 'mode std,taiko,mania' },
+            { text: 'std,taiko', args: 'mode std,taiko' },
             { text: 'osu', args: 'mode std' },
             { text: 'taiko', args: 'mode taiko' },
             { text: 'mania', args: 'mode mania' },
