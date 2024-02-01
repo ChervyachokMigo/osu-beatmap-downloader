@@ -3,7 +3,6 @@ const { login, password } = require('../config.js');
 const { writeFileSync } = require('original-fs');
 const path = require('path');
 const { readFileSync, existsSync } = require('fs');
-const { set_v2, re_login } = require('osu-api-extended/dist/utility/auth.js');
 
 const osu_token_path = path.join('data', 'osu_token.json');
 
@@ -30,7 +29,7 @@ const auth_osu = async () => {
         expires_in = data.time;
         access_token = data.access_token;
         if (access_token && expires_in && current_time < expires_in) {
-            set_v2(access_token.access_token);
+            auth.set_v2(access_token.access_token);
         }
     }
 

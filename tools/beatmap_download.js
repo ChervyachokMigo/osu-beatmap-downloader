@@ -1,5 +1,5 @@
 const fs = require('fs');
-var { v2 } = require('osu-api-extended');
+var { v2, tools } = require('osu-api-extended');
 var { log } = require(`./tools.js`);
 
 module.exports = async function beatmap_download(id, path, size = 0) {
@@ -8,7 +8,7 @@ module.exports = async function beatmap_download(id, path, size = 0) {
 
             log(`downloading ${id} to ${path} (${(size/(1024*1024)).toFixed(2)} MB)`);
 
-            await v2.beatmap.download(id, path);
+            await v2.beatmap.set.download(id, path);
 
             var stats = fs.statSync(path);
 

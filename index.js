@@ -21,6 +21,7 @@ const dashboard = require('dashboard_framework');
 const { save_last_cursor, load_last_cursor, is_continue_from_cursor } = require('./tools/cursor.js');
 const { get_osu_token, auth_osu } = require('./tools/osu_auth.js');
 const { dashboard_init } = require('./tools/dashboard_init.js');
+const tools = require('./tools/tools.js');
 
 const osu_db_path = path.join(__dirname, 'data', 'beatmaps_osu_db.json');
 
@@ -167,10 +168,10 @@ async function download_beatmaps(mode = 0){
     checkmap: while (1==1){
         log(`requesting for cursor: ${cursor_string}`);
         
-        let new_beatmaps = await v2.beatmap.search({
+        let new_beatmaps = await v2.beatmaps.search({
             query: query,
-            m: mode,
-            s: status,
+            mode: mode,
+            section: status,
             cursor_string: cursor_string,
         }).catch( (rej) => {
             throw new Error (rej);
