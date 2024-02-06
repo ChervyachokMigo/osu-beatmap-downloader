@@ -4,7 +4,7 @@ const { v2 } = require ('osu-api-extended');
 
 const defaults = require('./misc/const_defaults.js');
 const jsons = require(`./tools/jsons.js`);
-const { escapeString, log, checkDir, sleep, formatPercent } = require(`./tools/tools.js`);
+const { escapeString, log, checkDir, sleep, formatPercent, breakpoint } = require(`./tools/tools.js`);
 const config = require('./config.js');
 const beatmap_download = require('./tools/beatmap_download.js');
 const check_response = require('./tools/check_response.js');
@@ -12,7 +12,6 @@ const download_path = require('./tools/download_path.js');
 
 const get_beatmap_size = require('./tools/get_beatmap_size.js');
 
-const get_file_size = require('./tools/get_file_size.js');
 const { existsSync } = require('fs');
 const path = require('path');
 const { copy_beatmaps } = require('./tools/copy_beatmaps.js');

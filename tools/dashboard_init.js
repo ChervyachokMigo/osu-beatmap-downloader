@@ -10,6 +10,8 @@ module.exports = {
             neutral: [97, 97, 97]
         };
 
+        const screen_name = 'downloading';
+
         await dashboard.run(WEBPORT, SOCKETPORT);
 
         await dashboard.set_setting({ name: 'debug', value: DEBUG_DASHBOARD });
@@ -125,8 +127,18 @@ module.exports = {
                     { name: 'end', color: colors.neutral, text: 'Операция завершена' }
                 ]
             },
-        ]);
-        await dashboard.css_apply({selector: 'body', prop: 'background-color', value: '#313131'});
+        ]).then( async () => {
+            const status_names = dashboard.get_status_names();
+
+            for (let element of status_names) {
+                await dashboard.bind_screen_element({name: screen_name, element})
+            }
+        });
+
         await dashboard.create_feed({feedname: 'last_beatmaps'});
+        await dashboard.bind_screen_element({name: screen_name, element: 'last_beatmaps'});
+
+        await dashboard.css_apply({selector: 'body', prop: 'background-color', value: '#313131'});
+        
     }
 }

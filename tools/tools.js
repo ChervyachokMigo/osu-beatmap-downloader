@@ -56,10 +56,14 @@ module.exports = {
     },
 
     sleep: async (seconds) => {
-        console.log('sleep for', (seconds/60).toFixed(1), 'mins');
+        console.log('> sleeping for', (seconds/60).toFixed(1), 'mins');
         return new Promise( (resolve) => {
             setTimeout(resolve, seconds * 1000);
         });
+    },
+
+    breakpoint: async () => {
+        module.exports.sleep(99999);
     },
 
     log: (...string) => {
