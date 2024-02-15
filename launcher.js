@@ -58,13 +58,13 @@ const enter_keys_actions = Object.keys(enter_keys);
 const command_props = {
     gamemode: { 
         variants: [
-            { text: 'all', args: 'mode std,taiko,mania,fruits' },
-            { text: 'std,taiko,mania', args: 'mode std,taiko,mania' },
-            { text: 'std,taiko', args: 'mode std,taiko' },
-            { text: 'osu', args: 'mode std' },
-            { text: 'taiko', args: 'mode taiko' },
-            { text: 'mania', args: 'mode mania' },
-            { text: 'fruits', args: 'mode fruits' },
+            { text: 'all', args: 'mode std,taiko,mania,fruits' },       //gamemode: 0
+            { text: 'std,taiko,mania', args: 'mode std,taiko,mania' },  //gamemode: 1
+            { text: 'std,taiko', args: 'mode std,taiko' },              //gamemode: 2
+            { text: 'osu', args: 'mode std' },                          //gamemode: 3
+            { text: 'taiko', args: 'mode taiko' },                      //gamemode: 4
+            { text: 'mania', args: 'mode mania' },                      //gamemode: 5
+            { text: 'fruits', args: 'mode fruits' },                    //gamemode: 6
         ],
         inc: () => {
             menu_props.gamemode += 1;
