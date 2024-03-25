@@ -96,10 +96,6 @@ async function download_beatmaps(mode = 0){
     const min_circles = args.min_circles || config.min_circles || defaults.min_circles;
     const min_length = args.min_length || config.min_length || defaults.min_length;
 
-    const strict = args.strict || false;
-
-    const query = strict ? '"'+args.query+'"' : args.query || undefined;
-
     await dashboard.change_text_item({name: 'fav_count_min', item_name: 'current', text: `${FAV_COUNT_MIN}`});
     await dashboard.change_text_item({name: 'stars', item_name: 'current', text: `★${stars_min}-${stars_max}`});
     await dashboard.change_text_item({name: 'maps_depth', item_name: 'current', text: `${maps_depth} страниц (${maps_depth * 50} карт)`});
@@ -162,9 +158,12 @@ async function download_beatmaps(mode = 0){
     await dashboard.change_status({name: 'download_status', status});
     await dashboard.change_status({name: 'download_mode', status: str_modes[mode]});
 
+    const strict = args.strict || false;
+    const query = args?.query ? strict  ? '"'+args.query+'"' : args.query : null;
+
     log('[settings]','\n',
     'query',query,'\n',
-    'mode:',mode,'\n',
+    'mode:',str_modes[mode],'\n',
     'status',status,'\n',
     'favorite minimum count:', FAV_COUNT_MIN,'\n',
     'stars from',stars_min,'to',stars_max,'\n',
@@ -172,41 +171,54 @@ async function download_beatmaps(mode = 0){
     
     let total = null;
     let max_maps = 1;
+	let is_continue = true;
 
-    checkmap: while (1==1){
-        log(`requesting for cursor: ${cursor_string}`);
-        
-        let new_beatmaps = await v2.beatmaps.search({
-            query: query,
-            mode: mode,
-            section: status,
-            cursor_string: cursor_string,
+	const section = status !== 'ranked' ? status: null;
+
+    checkmap: while (is_continue){
+        //log(`requesting for cursor: ${cursor_string}`);
+
+        const bancho_res = await v2.beatmaps.search({
+            query,
+            mode: str_modes[mode],
+            section,
+            cursor_string,
         }).catch( (rej) => {
             throw new Error (rej);
         });
-        
-        let founded_maps = new_beatmaps?.beatmapsets;
+
+		if ( !bancho_res ) {
+			console.log( 'no response from bancho' );
+			break; 
+		}
+
+		if (bancho_res === null) {
+			console.log('no founded beatmaps, ended.');
+			break;
+		}
+		
+		if ( bancho_res?.cursor && bancho_res.cursor?.approved_date ) {
+			approved_date = bancho_res.cursor.approved_date;
+			log('requesting beatmaps by date', new Date(approved_date).toLocaleString() ?? 'now' );
+		}
+
+		const founded_maps = bancho_res?.beatmapsets;
         let old_cursor = cursor_string;
 
-        if (total === null) {
-            total = new_beatmaps?.total;
-            max_maps = new_beatmaps?.total;
-
+		if (!total){
+			total = bancho_res?.total;
+			max_maps = bancho_res?.total;
             await dashboard.change_text_item({name: 'total_maps', item_name: 'current', text: `${total}`});
-        }
+		}
 
-        if (founded_maps && founded_maps.length>=50){
-            cursor_string = new_beatmaps.cursor_string;
-            if (founded_maps.length<50){
-                log (`comparing ${founded_maps.length} beatmaps`);
-            } else {
-                log ('comparing next 50 beatmaps');
-            }
-        } else {
-            cursor_string = null
-            log('founded maps 0, ended.');
-            break;
-        }
+		// last beatmapsets
+		if ( !bancho_res?.cursor || bancho_res?.cursor?.approved_date === null ){
+			is_continue = false;
+		} else {
+			if ( founded_maps && founded_maps.length > 0 ) {
+				cursor_string = bancho_res?.cursor_string;
+			}
+		}
 
         await dashboard.change_text_item({name: 'cursor_string', item_name: 'last', text: `${cursor_string}`});
         save_last_cursor(cursor_string);
