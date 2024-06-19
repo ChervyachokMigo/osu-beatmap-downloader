@@ -20,14 +20,14 @@ const get_waiting_quota_time = (start_time, waiting_mins) => {
 
 let waiting_quota_interval = null;
 
-const dashboard_waiting_quota_start = async () => {
+const dashboard_waiting_quota_start = async (time_min) => {
     await dashboard.change_status({name: 'download_quota', status: 'quota'});
     let start_waiting_time = new Date().getTime();
     waiting_quota_interval = setInterval( async () => {
         await dashboard.change_text_item({
             name: 'download_quota', 
             item_name: 'quota', 
-            text: `предел, ожидание ${get_waiting_quota_time(start_waiting_time, 30)}`
+            text: `предел, ожидание ${get_waiting_quota_time(start_waiting_time, time_min)}`
         });
     }, 1000);
 }
@@ -51,13 +51,15 @@ module.exports =  async function check_response (response, beatmapname) {
                 console.error(e);
             }
 
+			const waiting_mins = 30;
+
             log(`${await downloadquota()} quota used`);
             log(response);
             log(`waiting 30 minutes for retry.`);
             
-            await dashboard_waiting_quota_start();
+            await dashboard_waiting_quota_start(waiting_mins);
             await copy_beatmaps();
-            await sleep(1800);
+            await sleep(60 * waiting_mins);
             await dashboard_waiting_quota_end();
         }
 
