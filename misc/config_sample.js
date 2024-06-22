@@ -18,10 +18,6 @@ module.exports = {
     //подробная информация о копировании
     is_detail_copy_log: false,
 
-    //ручное сканирование базы карт из осу
-    readOsudb: false,       //не нужно
-    isFullRescan: false,    //не нужно
-
     //режим по умолчанию
     //osu
     //taiko

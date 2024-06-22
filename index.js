@@ -52,12 +52,13 @@ async function main(){
     
     await auth_osu();
     await dashboard.change_status({name: 'osu_auth', status: 'on'});
-    
-    if (!existsSync(osu_db_path)){
+
+	jsons.load_beatmaplist();
+
+    /*if (!existsSync(osu_db_path)){
         await dashboard.change_status({name: 'db_scan', status: 'scaning'});
-        await jsons.read_osu_db();
         console.log('scan ended');
-    }
+    }*/
 
     await dashboard.change_status({name: 'db_scan', status: 'ready'});
 
@@ -248,8 +249,7 @@ async function download_beatmaps(mode = 0){
             let artist = founded_maps[idx].artist;
             let title = founded_maps[idx].title;
 
-            if( beatmaps_selected.length > 0 && fav_count > FAV_COUNT_MIN && 
-                !jsons.find(beatmapset_id) ){
+            if( beatmaps_selected.length > 0 && fav_count > FAV_COUNT_MIN && !jsons.find(beatmapset_id) ){
 
                 found_maps_counter = 0;
 
@@ -301,7 +301,7 @@ async function download_beatmaps(mode = 0){
                     await check_response(is_download_failed, osz_name);
                 } else if (!is_download_failed && status !== 'qualified') {
                     //successful download map not qualified map
-                    jsons.add(beatmapset_id);
+                    jsons.add_new(beatmapset_id);
                 } else {
                     //successful download qualified map
                     //no action
