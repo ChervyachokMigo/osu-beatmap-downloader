@@ -12,11 +12,11 @@ module.exports = {
     //временная папка загрузки
     download_folder: `beatmaps`,
     //автоманическое перемещение скачаных карт
-    is_copy_beatmaps: true,
+    is_move_beatmaps: true,
+	//подробная информация о перемещении
+    is_detail_move_log: false,
     //проверка размера файла (тратится квота скачивания с банчо, если отключить, то будет в 2 раза больше скачиваться до потери квоты)
     is_file_size_requesting: false,
-    //подробная информация о копировании
-    is_detail_copy_log: false,
 
     //режим по умолчанию
     //osu

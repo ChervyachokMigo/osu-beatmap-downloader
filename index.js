@@ -14,7 +14,7 @@ const get_beatmap_size = require('./responses/get_beatmap_size.js');
 
 const { existsSync } = require('fs');
 const path = require('path');
-const { copy_beatmaps } = require('./tools/copy_beatmaps.js');
+const move_beatmaps = require('./tools/move_beatmaps.js');
 
 const dashboard = require('dashboard_framework');
 const { save_last_cursor, load_last_cursor, is_continue_from_cursor } = require('./tools/cursor.js');
@@ -63,8 +63,8 @@ async function main(){
         await download_beatmaps();
     }
 
-    if (config.is_copy_beatmaps) {
-        await copy_beatmaps();
+    if (config.is_move_beatmaps) {
+        move_beatmaps();
     }
 
     await dashboard_end();
@@ -211,7 +211,7 @@ async function download_beatmaps(mode){
                     log(`waiting 30 minutes for retry.`);
                     await dashboard.change_status({name: 'download_quota', status: 'quota'});
 
-                    await copy_beatmaps();
+                    await move_beatmaps();
                     
                     await sleep(1800);
 

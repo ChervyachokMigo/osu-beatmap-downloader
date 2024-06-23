@@ -3,8 +3,9 @@ var { sleep, log } = require(`./tools.js`);
 var  download_quota  = require("../responses/download_quota.js");
 var  download_path  = require("./download_path.js");
 
-const { copy_beatmaps } = require('./copy_beatmaps.js');
+const move_beatmaps = require('./move_beatmaps.js');
 const { dashboard_waiting_quota_start, dashboard_waiting_quota_end } = require('./dashboard_quota.js');
+const config = require('../config.js');
 
 module.exports = async function check_response (response, beatmapname) {
     return new Promise ( async ( res, rej) => {
@@ -22,7 +23,11 @@ module.exports = async function check_response (response, beatmapname) {
             log(`waiting 30 minutes for retry.`);
             
             await dashboard_waiting_quota_start(waiting_mins);
-            await copy_beatmaps();
+
+			if (config.is_move_beatmaps) {
+				move_beatmaps();
+			}
+			
             await sleep(60 * waiting_mins);
             await dashboard_waiting_quota_end();
         }
