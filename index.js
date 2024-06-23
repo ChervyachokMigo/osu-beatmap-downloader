@@ -24,6 +24,7 @@ const dashboard_end = require('./tools/dashboard_end.js');
 
 const check_gamemode = require('./tools/check_gamemode.js');
 const check_beatmap_status = require('./tools/check_beatmap_status.js');
+const { yellow, green } = require('colors');
 
 checkDir(download_path);
 checkDir(path.join(__dirname, 'data'));
@@ -96,7 +97,6 @@ async function download_beatmaps(mode){
     let cursor_string = args.cursor || load_last_cursor();
 
     await dashboard.change_text_item({name: 'cursor_string', item_name: 'last', text: `${cursor_string}`});
-    log(cursor_string)
 
     const gamemode = check_gamemode(mode);
 
@@ -106,17 +106,16 @@ async function download_beatmaps(mode){
     await dashboard.change_status({ name: 'download_mode', status: gamemode.name });
 
     const strict = args.strict || false;
-    const query = args?.query ? strict  ? '"'+args.query+'"' : args.query : null;
+    const query = args?.query ? strict  ? '"'+ args.query +'"' : args.query : null;
 
-    log([
-		'[settings]',
-		`query: ${query}`,
-		`mode: ${gamemode.name}`,
-		`status: ${beatmap_status}`,
-		`favorite minimum count: ${FAV_COUNT_MIN}`,
-		`stars from ${stars_min} to ${stars_max}`,
-		`maps depth: ${maps_depth}` ]
-		.join('\n') + '\n' 
+    log(['', '',
+		`start mode ${green(gamemode.name)}`,
+		`query: ${query ? green(query) : query }`,
+		`status: ${green(beatmap_status)}`,
+		`favorite minimum count: ${yellow(FAV_COUNT_MIN)}`,
+		`stars: ${yellow(stars_min)}-${yellow(stars_max)}`,
+		`maps depth: ${yellow(maps_depth)} (${ yellow( (maps_depth * 50).toString() )})` ]
+		.join('\n') + '\n'
 	);
     
     let total = null;
@@ -148,7 +147,7 @@ async function download_beatmaps(mode){
 		
 		if ( bancho_res?.cursor && bancho_res.cursor?.approved_date ) {
 			approved_date = bancho_res.cursor.approved_date;
-			log('requesting beatmaps by date', new Date(approved_date).toLocaleString() ?? 'now' );
+			log('requesting beatmaps by date', yellow(new Date(approved_date).toLocaleString()) ?? yellow('now') );
 		}
 
 		const founded_maps = bancho_res?.beatmapsets;
@@ -211,7 +210,9 @@ async function download_beatmaps(mode){
                     log(`waiting 30 minutes for retry.`);
                     await dashboard.change_status({name: 'download_quota', status: 'quota'});
 
-                    await move_beatmaps();
+					if (config.is_move_beatmaps) {
+						move_beatmaps();
+					}
                     
                     await sleep(1800);
 
@@ -264,15 +265,15 @@ async function download_beatmaps(mode){
             found_maps_counter++;
         }
 
-        log ('you have',founded_beatmaps,'of',checked_beatmaps,'beatmaps');
+        log ('you have', yellow(founded_beatmaps.toString()), 'of', yellow(checked_beatmaps.toString()), 'beatmaps');
 
         total -= founded_maps.length;
-        log(`${total} beatmaps left`);
+        log(yellow(total.toString()), 'beatmaps left');
 
         await dashboard.change_text_item({name: 'total_maps', item_name: 'current', text: `${total}/${max_maps} (${formatPercent(total, max_maps, 2)}%)`});
 
         if ( found_maps_counter > maps_depth || total <= 0 || cursor_string === null || cursor_string === undefined) {
-            log('ended');
+            log('ended', green(gamemode.name));
             break
         }
 
