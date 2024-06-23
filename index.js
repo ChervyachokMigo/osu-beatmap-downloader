@@ -4,13 +4,13 @@ const { v2 } = require ('osu-api-extended');
 
 const defaults = require('./misc/const_defaults.js');
 const jsons = require(`./tools/jsons.js`);
-const { escapeString, log, checkDir, sleep, formatPercent, breakpoint } = require(`./tools/tools.js`);
+const { escapeString, log, checkDir, sleep, formatPercent } = require(`./tools/tools.js`);
 const config = require('./config.js');
-const beatmap_download = require('./tools/beatmap_download.js');
+const beatmap_download = require('./responses/beatmap_download.js');
 const check_response = require('./tools/check_response.js');
 const download_path = require('./tools/download_path.js');
 
-const get_beatmap_size = require('./tools/get_beatmap_size.js');
+const get_beatmap_size = require('./responses/get_beatmap_size.js');
 
 const { existsSync } = require('fs');
 const path = require('path');
@@ -18,24 +18,14 @@ const { copy_beatmaps } = require('./tools/copy_beatmaps.js');
 
 const dashboard = require('dashboard_framework');
 const { save_last_cursor, load_last_cursor, is_continue_from_cursor } = require('./tools/cursor.js');
-const { get_osu_token, auth_osu } = require('./tools/osu_auth.js');
+const { get_osu_token, auth_osu } = require('./responses/osu_auth.js');
 const { dashboard_init } = require('./tools/dashboard_init.js');
+const dashboard_end = require('./tools/dashboard_end.js');
 
-const osu_db_path = path.join(__dirname, 'data', 'beatmaps_osu_db.json');
+const check_gamemode = require('./tools/check_gamemode.js');
 
 checkDir(download_path);
 checkDir(path.join(__dirname, 'data'));
-
-const str_modes = ['osu', 'taiko', 'fruits', 'mania'];
-
-const end_process = async () => {
-    await dashboard.emit_event({
-        feedname: 'last_beatmaps',
-        type: 'end',
-        title: `Скачивание закончено`,
-    });
-    await dashboard.change_status({name: 'total_maps', status: 'end'});
-}
 
 async function main(){
     if (!existsSync(config.osuFolder)){
@@ -53,20 +43,15 @@ async function main(){
     await auth_osu();
     await dashboard.change_status({name: 'osu_auth', status: 'on'});
 
+	await dashboard.change_status({name: 'db_scan', status: 'checking'});
 	jsons.load_beatmaplist();
-
-    /*if (!existsSync(osu_db_path)){
-        await dashboard.change_status({name: 'db_scan', status: 'scaning'});
-        console.log('scan ended');
-    }*/
-
     await dashboard.change_status({name: 'db_scan', status: 'ready'});
 
     const args = minimist(process.argv.slice(2));
     
     if (args.mode){
         const modes = args.mode.split(',');
-        if ( modes.length>1 ){
+        if ( modes.length > 1 ){
             for (let mode of modes) {
                 await download_beatmaps(mode);
             };
@@ -81,12 +66,12 @@ async function main(){
         await copy_beatmaps();
     }
 
-    await end_process();
+    await dashboard_end();
 
     //process.exit(0);
 }
 
-async function download_beatmaps(mode = 0){
+async function download_beatmaps(mode){
     
     const args = minimist(process.argv.slice(2));
 
@@ -112,34 +97,7 @@ async function download_beatmaps(mode = 0){
     await dashboard.change_text_item({name: 'cursor_string', item_name: 'last', text: `${cursor_string}`});
     log(cursor_string)
 
-    switch (mode){
-        case '1':
-        case 'taiko':
-        case 't':
-            mode = 1;
-            break;
-        case '2':
-        case 'fruits':
-        case 'ctb':
-        case 'c':
-        case 'f':
-            mode = 2;
-            break;
-        case '3':
-        case 'mania':
-        case 'm':
-            mode = 3;
-            break;
-        case 'osu':
-        case 'std':
-        case 'o':
-        case 's':
-        case '0':
-            mode = 0;
-        default:
-            mode = 0;
-            break;
-    }
+    const gamemode = check_gamemode(mode);
 
     let status = 'ranked';
 
@@ -156,19 +114,22 @@ async function download_beatmaps(mode = 0){
             break;
     }
 
-    await dashboard.change_status({name: 'download_status', status});
-    await dashboard.change_status({name: 'download_mode', status: str_modes[mode]});
+    await dashboard.change_status({ name: 'download_status', status });
+    await dashboard.change_status({ name: 'download_mode', status: gamemode.name });
 
     const strict = args.strict || false;
     const query = args?.query ? strict  ? '"'+args.query+'"' : args.query : null;
 
-    log('[settings]','\n',
-    'query',query,'\n',
-    'mode:',str_modes[mode],'\n',
-    'status',status,'\n',
-    'favorite minimum count:', FAV_COUNT_MIN,'\n',
-    'stars from',stars_min,'to',stars_max,'\n',
-    'maps depth',maps_depth,'\n',)
+    log([
+		'[settings]',
+		`query: ${query}`,
+		`mode: ${gamemode.name}`,
+		`status: ${status}`,
+		`favorite minimum count: ${FAV_COUNT_MIN}`,
+		`stars from ${stars_min} to ${stars_max}`,
+		`maps depth: ${maps_depth}` ]
+		.join('\n') + '\n' 
+	);
     
     let total = null;
     let max_maps = 1;
@@ -177,11 +138,10 @@ async function download_beatmaps(mode = 0){
 	const section = status !== 'ranked' ? status: null;
 
     checkmap: while (is_continue){
-        //log(`requesting for cursor: ${cursor_string}`);
 
         const bancho_res = await v2.beatmaps.search({
             query,
-            mode: str_modes[mode],
+            mode: gamemode.name,
             section,
             cursor_string,
         }).catch( (rej) => {
@@ -232,14 +192,14 @@ async function download_beatmaps(mode = 0){
             checked_beatmaps++;
 
             const beatmaps_selected = founded_maps[idx].beatmaps.filter( val => { 
-                return val.mode_int === mode && 
-                    val.difficulty_rating>=stars_min && 
-                    val.difficulty_rating<=stars_max && 
-                    val.total_length>min_length && 
-                    val.count_circles>min_circles
+                return val.mode_int === gamemode.int && 
+                    val.difficulty_rating >= stars_min && 
+                    val.difficulty_rating <= stars_max && 
+                    val.total_length > min_length && 
+                    val.count_circles > min_circles
             });
             
-            if (!beatmaps_selected || beatmaps_selected.length == 0){
+            if ( !beatmaps_selected || beatmaps_selected.length == 0 ){
                 founded_beatmaps++;
                 continue;
             }

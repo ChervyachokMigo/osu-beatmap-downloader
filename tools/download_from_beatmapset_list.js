@@ -3,7 +3,7 @@ const minimist = require('minimist');
 const { v2, auth } = require ('osu-api-extended');
 const { escapeString, checkDir } = require(`./tools.js`);
 const check_response = require('./check_response.js');
-const beatmap_download = require('./beatmap_download.js');
+const beatmap_download = require('../responses/beatmap_download.js');
 const config = require('../config.js');
 const path = require('path');
 
