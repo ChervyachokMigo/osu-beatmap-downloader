@@ -23,6 +23,7 @@ const { dashboard_init } = require('./tools/dashboard_init.js');
 const dashboard_end = require('./tools/dashboard_end.js');
 
 const check_gamemode = require('./tools/check_gamemode.js');
+const check_beatmap_status = require('./tools/check_beatmap_status.js');
 
 checkDir(download_path);
 checkDir(path.join(__dirname, 'data'));
@@ -99,22 +100,9 @@ async function download_beatmaps(mode){
 
     const gamemode = check_gamemode(mode);
 
-    let status = 'ranked';
+    const beatmap_status = check_beatmap_status(args.status);
 
-    switch (args.status){
-        case 'qualified':
-        case 'ranked':
-        case 'loved':
-        case 'pending':
-        case 'graveyard':
-            status = args.status;
-            break;
-        default:
-            status = 'ranked';
-            break;
-    }
-
-    await dashboard.change_status({ name: 'download_status', status });
+    await dashboard.change_status({ name: 'download_status', status: beatmap_status });
     await dashboard.change_status({ name: 'download_mode', status: gamemode.name });
 
     const strict = args.strict || false;
@@ -124,7 +112,7 @@ async function download_beatmaps(mode){
 		'[settings]',
 		`query: ${query}`,
 		`mode: ${gamemode.name}`,
-		`status: ${status}`,
+		`status: ${beatmap_status}`,
 		`favorite minimum count: ${FAV_COUNT_MIN}`,
 		`stars from ${stars_min} to ${stars_max}`,
 		`maps depth: ${maps_depth}` ]
@@ -135,7 +123,7 @@ async function download_beatmaps(mode){
     let max_maps = 1;
 	let is_continue = true;
 
-	const section = status !== 'ranked' ? status: null;
+	const section = beatmap_status !== 'ranked' ? beatmap_status: null;
 
     checkmap: while (is_continue){
 
@@ -253,13 +241,13 @@ async function download_beatmaps(mode){
                     icon: `https://assets.ppy.sh/beatmaps/${beatmapset_id}/covers/card.jpg`
                 });
 
-                let is_download_failed = await beatmap_download(beatmapset_id ,osz_full_path, beatmap_size);                
+                const response_message = await beatmap_download(beatmapset_id ,osz_full_path, beatmap_size);                
 
-                if (is_download_failed) {
+                if (response_message) {
                     //failed download map
                     idx--;
-                    await check_response(is_download_failed, osz_name);
-                } else if (!is_download_failed && status !== 'qualified') {
+                    await check_response(response_message, osz_name);
+                } else if (!response_message && beatmap_status !== 'qualified') {
                     //successful download map not qualified map
                     jsons.add_new(beatmapset_id);
                 } else {
