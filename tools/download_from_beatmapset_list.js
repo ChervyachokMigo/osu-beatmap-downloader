@@ -23,7 +23,7 @@ const auth_osu = async () => {
 function parse_list(list_filename){
     try{
         const data = readFileSync(list_filename, {encoding: 'utf8'});
-        const rows = data.split('\n').map( v => Number(v));
+        const rows = data.split('\n').map( str => Number( str.match(/^\d+/g) ));
         return rows.filter((v, i) => rows.indexOf(v) === i && v !== 0).sort( (a, b) => a - b);
     } catch (e){
         throw new Error(e);
@@ -48,9 +48,20 @@ async function main(){
     const beatmapset_id_list = parse_list(downloads_list);
 
     for (let id of beatmapset_id_list){        
-        const response_beatmap_info = await v2.beatmap.set.lookup(id);
+        const response_beatmap_info = await v2.beatmap.set.details(id);
+
+		let is_no_info = false;
+		if (!response_beatmap_info || !response_beatmap_info.artist || !response_beatmap_info.title) {
+            console.log(`[${id}] Beatmapset INFO not responsed.`);
+			is_no_info = true;
+        }
+
         const osz_name = 
-        `${id} ${escapeString(response_beatmap_info.artist)} - ${escapeString(response_beatmap_info.title)}.osz`;
+        `${id}${is_no_info === false ? 
+			' ' + [
+				escapeString(response_beatmap_info.artist), 
+				escapeString(response_beatmap_info.title)
+			].join(' - '): ''}.osz`;
 
         await new Promise( async (res, rej) => {
             const is_download_failed = await beatmap_download(id , path.join(download_path, osz_name));

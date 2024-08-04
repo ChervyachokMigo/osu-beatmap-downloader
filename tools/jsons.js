@@ -74,7 +74,8 @@ const load_values = (data) => {
 
 const add_new = (data) => {
     load_values(data);
-	fs.writeFileSync(beatmaplist_path, JSON.stringify(beatmaps_downloaded));
+	fs.writeFileSync( beatmaplist_path, 
+		JSON.stringify( Array.from( new Set(beatmaps_downloaded ))));
 }
 
 module.exports = {

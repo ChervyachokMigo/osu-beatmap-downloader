@@ -173,6 +173,7 @@ async function download_beatmaps(mode){
 
         let checked_beatmaps = 0;
         let founded_beatmaps = 0;
+		let server_id = 0;
 
         for (let idx = 0; idx < founded_maps.length; idx++){
 
@@ -242,12 +243,15 @@ async function download_beatmaps(mode){
                     icon: `https://assets.ppy.sh/beatmaps/${beatmapset_id}/covers/card.jpg`
                 });
 
-                const response_message = await beatmap_download(beatmapset_id ,osz_full_path, beatmap_size);                
+                const response_message = await beatmap_download(beatmapset_id ,osz_full_path, server_id, beatmap_size);                
 
                 if (response_message) {
                     //failed download map
                     idx--;
-                    await check_response(response_message, osz_name);
+                    const response_error = await check_response(response_message, osz_name);
+					/*if (response_error === 'timeout') {
+						server_id++;
+					}*/
                 } else if (!response_message && beatmap_status !== 'qualified') {
                     //successful download map not qualified map
                     jsons.add_new(beatmapset_id);
