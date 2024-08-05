@@ -6,11 +6,8 @@ const defaults = require('./misc/const_defaults.js');
 const jsons = require(`./tools/jsons.js`);
 const { escapeString, log, checkDir, sleep, formatPercent } = require(`./tools/tools.js`);
 const config = require('./config.js');
-const beatmap_download = require('./responses/beatmap_download.js');
-const check_response = require('./tools/check_response.js');
-const download_path = require('./tools/download_path.js');
 
-const get_beatmap_size = require('./responses/get_beatmap_size.js');
+const download_path = require('./tools/download_path.js');
 
 const { existsSync } = require('fs');
 const path = require('path');
@@ -25,6 +22,7 @@ const dashboard_end = require('./tools/dashboard_end.js');
 const check_gamemode = require('./tools/check_gamemode.js');
 const check_beatmap_status = require('./tools/check_beatmap_status.js');
 const { yellow, green } = require('colors');
+const beatmap_download_2 = require('./responses/beatmap_download_2.js');
 
 checkDir(download_path);
 checkDir(path.join(__dirname, 'data'));
@@ -201,31 +199,6 @@ async function download_beatmaps(mode){
 
                 found_maps_counter = 0;
 
-                let osz_name = `${beatmapset_id} ${escapeString(artist)} - ${escapeString(title)}.osz`;
-                let osz_full_path = `${download_path}\\${osz_name}`;
-
-                let filesize_response = config.is_file_size_requesting ? get_beatmap_size(get_osu_token(), beatmapset_id) : {size: 0};
-
-                if (filesize_response.error){
-                    log(filesize_response.error);
-                    log(`waiting 30 minutes for retry.`);
-                    await dashboard.change_status({name: 'download_quota', status: 'quota'});
-
-					if (config.is_move_beatmaps) {
-						move_beatmaps();
-					}
-                    
-                    await sleep(1800);
-
-                    await dashboard.change_status({name: 'download_quota', status: 'ready'});
-                    
-                    cursor_string = old_cursor;
-
-                    continue checkmap;
-                }
-                
-                let beatmap_size = Number(filesize_response.size);
-
                 await dashboard.css_apply({
                     selector: 'body', 
                     prop: 'background-image', 
@@ -243,22 +216,16 @@ async function download_beatmaps(mode){
                     icon: `https://assets.ppy.sh/beatmaps/${beatmapset_id}/covers/card.jpg`
                 });
 
-                const response_message = await beatmap_download(beatmapset_id ,osz_full_path, server_id, beatmap_size);                
+				const success = await beatmap_download_2({
+					beatmapset_id, 
+					output_filename: `${beatmapset_id} ${escapeString(artist)} - ${escapeString(title)}.osz`,
+					api_v2_token: get_osu_token()
+				});
 
-                if (response_message) {
-                    //failed download map
-                    idx--;
-                    const response_error = await check_response(response_message, osz_name);
-					/*if (response_error === 'timeout') {
-						server_id++;
-					}*/
-                } else if (!response_message && beatmap_status !== 'qualified') {
-                    //successful download map not qualified map
-                    jsons.add_new(beatmapset_id);
-                } else {
-                    //successful download qualified map
-                    //no action
-                }
+				if (success && beatmap_status !== 'qualified') {
+					jsons.add_new(beatmapset_id);
+					console.log('download complete');
+				}
 
             } else {
                 founded_beatmaps++;
