@@ -12,11 +12,10 @@ const formatAddZero = (t, symbols = 1) => {
     return result;
 }
 
-const get_time_string = (date) => {
-    return `${formatAddZero(date.getHours(),2)}:${formatAddZero(date.getMinutes(),2)}:${formatAddZero(date.getSeconds(),2)}`;
-}
-
-module.exports = {
+const _this = module.exports = {
+	get_time_string: (date) => {
+		return `${formatAddZero(date.getHours(),2)}:${formatAddZero(date.getMinutes(),2)}:${formatAddZero(date.getSeconds(),2)}`;
+	},
 
     escapeString: (text) => {
         return text?text.replace(/[&\/\\#+$~%'":*?<>{}|]/g, ''):'';
@@ -30,7 +29,7 @@ module.exports = {
     },
 
     log: (...string) => {
-        console.log( `[${get_time_string(new Date()).yellow}]`, string.join(' ') );
+        console.log( `[${_this.get_time_string(new Date()).yellow}]`, string.join(' ') );
     },
 
     checkDir: (path) => {

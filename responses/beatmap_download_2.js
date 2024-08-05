@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const download_path = require('../tools/download_path');
 const { auth_osu, get_osu_token } = require('./osu_auth');
-const { log } = require('../tools/tools');
+const { log, get_time_string } = require('../tools/tools');
 const { yellow, green } = require('colors');
 const config = require('../config');
 
@@ -28,13 +28,14 @@ const _this = module.exports = async ({ beatmapset_id, output_filename, api_v2_t
 			const res = await axios.get( url, {
 				headers, 
 				responseType: 'arraybuffer', 
-				onDownloadProgress: ( e ) => 
-					process.stdout.write( `${(e.progress*100).toFixed(2)}% ${(e.estimated || 0).toFixed(1)}sec\r`)});
+				onDownloadProgress: ( e ) => {
+					process.stdout.write( `[${yellow(get_time_string(new Date()))}] ${(e.progress*100).toFixed(1)} % complete, estimated ${(e.estimated || 0).toFixed(1)}sec\r`)
+				}});
+				
 			
 			fs.writeFileSync( path.join(download_path, output_filename), res.data);
 
 			if (res.status === 200) {
-				console.log('');
 				resolve(true);
 			} else {
 				console.error( new Error(res.status) );
@@ -42,13 +43,14 @@ const _this = module.exports = async ({ beatmapset_id, output_filename, api_v2_t
 			}
 		} catch (e) {
 			if (e.code === 'ERR_BAD_REQUEST') {
-				console.error('Bad request');
+				console.log('');
+				log('Bad request');
 
 				if (e.response.status === 429) {
 					//Too Many Requests
 					console.error(e.response.statusText);
 					await new Promise( res => {
-						console.log('sleep 5 min');
+						log('sleep 5 min');
 						setTimeout( res, 5 * 60000 );
 					});
 					return await _this({ beatmapset_id, output_filename, api_v2_token });
@@ -58,7 +60,7 @@ const _this = module.exports = async ({ beatmapset_id, output_filename, api_v2_t
 				}
 
 				await new Promise( res => {
-					console.log('sleep 5 sec');
+					log('sleep 5 sec');
 					setTimeout( res, 5000 );
 				});
 
@@ -67,7 +69,8 @@ const _this = module.exports = async ({ beatmapset_id, output_filename, api_v2_t
 			}
 
 			if (e.code === 'ECONNRESET') {
-				console.log('No interntet connection, data loss, retry');
+				console.log('');
+				log('No interntet connection, data loss, retry');
 				await new Promise( res => {
 					console.log('sleep 5 sec');
 					setTimeout( res, 5000 );
@@ -76,15 +79,18 @@ const _this = module.exports = async ({ beatmapset_id, output_filename, api_v2_t
 			}
 
 			if (e.code === 'ENOTFOUND') {
-				console.log('Address not found, retry');
+				console.log('');
+				log('Address not found, retry');
 				await new Promise( res => {
 					console.log('sleep 5 sec');
 					setTimeout( res, 5000 );
 				});
 				return await _this({ beatmapset_id, output_filename, api_v2_token });
 			}
-			
+
+			console.log('');
 			console.log( 'download error', e );
+
 			reject({ error: e.code });
 		}
 	});
