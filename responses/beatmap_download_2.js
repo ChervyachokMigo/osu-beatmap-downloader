@@ -6,6 +6,7 @@ const { auth_osu, get_osu_token } = require('./osu_auth');
 const { log, get_time_string } = require('../tools/tools');
 const { yellow, green } = require('colors');
 const config = require('../config');
+const move_beatmaps = require('../tools/move_beatmaps');
 
 const token = JSON.parse(fs.readFileSync('data\\osu_token.json', { encoding: 'utf8' })).access_token.access_token;
 
@@ -50,6 +51,9 @@ const _this = module.exports = async ({ beatmapset_id, output_filename, api_v2_t
 					//Too Many Requests
 					console.error(e.response.statusText);
 					await new Promise( res => {
+						if (config.is_move_beatmaps) {
+							move_beatmaps();
+						}
 						log('sleep 5 min');
 						setTimeout( res, 5 * 60000 );
 					});
