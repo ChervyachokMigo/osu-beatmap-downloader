@@ -3,6 +3,9 @@ const path = require('path');
 const fs = require('fs');
 const download_path = require('../tools/download_path');
 const { auth_osu, get_osu_token } = require('./osu_auth');
+const { log } = require('../tools/tools');
+const { yellow, green } = require('colors');
+const config = require('../config');
 
 const token = JSON.parse(fs.readFileSync('data\\osu_token.json', { encoding: 'utf8' })).access_token.access_token;
 
@@ -20,13 +23,18 @@ const _this = module.exports = async ({ beatmapset_id, output_filename, api_v2_t
 		headers['accept'] = `application/octet-stream`;
 		headers['content-Type'] = `application/octet-stream`;
 		try{
-			const res = await axios.get( url, {headers, responseType: 'arraybuffer', onDownloadProgress: ( e ) => 
-				process.stdout.write( `${(e.progress*100).toFixed(2)}% ${(e.estimated || 0).toFixed(1)}sec\r`)});
-			console.log( res.status, res.statusText, typeof res.data, res.data.length );
+			log(`downloading ${yellow(beatmapset_id.toString())} to ${green( path.join(config.download_folder, output_filename) )}`);
+            
+			const res = await axios.get( url, {
+				headers, 
+				responseType: 'arraybuffer', 
+				onDownloadProgress: ( e ) => 
+					process.stdout.write( `${(e.progress*100).toFixed(2)}% ${(e.estimated || 0).toFixed(1)}sec\r`)});
 			
 			fs.writeFileSync( path.join(download_path, output_filename), res.data);
 
 			if (res.status === 200) {
+				console.log('');
 				resolve(true);
 			} else {
 				console.error( new Error(res.status) );

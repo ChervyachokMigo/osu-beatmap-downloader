@@ -182,7 +182,7 @@ const command_build = () => {
 
     command.push(command_props.is_continue.variants[menu_props.continue].args);
 
-    return `start http://localhost:${WEBPORT} && node index.js --${command.join(' --')}`;
+    return `start http://localhost:${WEBPORT} && node index.js --${command.join(' --')} && pause`;
 }
 
 const refresh = () => {
