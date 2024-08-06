@@ -7,8 +7,7 @@ const { log, get_time_string } = require('../tools/tools');
 const { yellow, green } = require('colors');
 const config = require('../config');
 const move_beatmaps = require('../tools/move_beatmaps');
-
-const token = JSON.parse(fs.readFileSync('data\\osu_token.json', { encoding: 'utf8' })).access_token.access_token;
+const dashboard = require('dashboard_framework');
 
 const _this = module.exports = async ({ beatmapset_id, output_filename, api_v2_token }) => {	
 	if (!api_v2_token) {
@@ -29,8 +28,16 @@ const _this = module.exports = async ({ beatmapset_id, output_filename, api_v2_t
 			const res = await axios.get( url, {
 				headers, 
 				responseType: 'arraybuffer', 
-				onDownloadProgress: ( e ) => {
-					process.stdout.write( `[${yellow(get_time_string(new Date()))}] ${(e.progress*100).toFixed(1)} % complete, estimated ${(e.estimated || 0).toFixed(1)}sec\r`)
+				onDownloadProgress: async( e ) => {
+					const estimated = (e.estimated || 0).toFixed(1);
+					await dashboard.change_progress_value({ name: 'progress_download', prop: 'value', value: e.progress });
+					dashboard.change_text_item({ 
+						name: 'download_estimate', 
+						item_name: 'current',
+						text: e.estimated ? `${estimated} сек`: 'нет' 
+					});
+					
+					process.stdout.write( `[${yellow(get_time_string(new Date()))}] Downloading progress ${(e.progress*100).toFixed(1)} % complete, estimated ${estimated}sec\r`)
 				}});
 				
 			

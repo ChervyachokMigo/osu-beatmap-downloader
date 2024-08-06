@@ -127,6 +127,14 @@ module.exports = {
                     { name: 'end', color: colors.neutral, text: 'Операция завершена' }
                 ]
             },
+			{
+                name: 'download_estimate',
+                text: 'Скачивание',
+                status: 'current',
+                values: [
+                    { name: 'current', color: colors.neutral, text: 'нет' },
+                ]
+            },
         ]).then( async () => {
             const status_names = dashboard.get_status_names();
 
@@ -134,6 +142,8 @@ module.exports = {
                 await dashboard.bind_screen_element({name: screen_name, element})
             }
         });
+
+		await dashboard.add_progress({name: 'progress_download', title: 'Загрузка: ', value: 0, max_value: 1 });
 
         await dashboard.create_feed({feedname: 'last_beatmaps'});
         await dashboard.bind_screen_element({name: screen_name, element: 'last_beatmaps'});
