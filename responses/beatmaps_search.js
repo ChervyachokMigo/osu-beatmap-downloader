@@ -13,7 +13,7 @@ const { log } = require('../tools/tools');
  */
 
 const _this = module.exports = async ( args ) => {
-	
+
 	//console.log('beatmaps_search', args)
 
 	const authing = async (_args) => {
@@ -48,7 +48,7 @@ const _this = module.exports = async ( args ) => {
 
 			//console.log(res.status === 200 ? res.data : res );
 			
-			console.log(res.request.res.responseUrl)
+			//console.log(res.request.res.responseUrl)
 
 			if (res.status === 200) {
 				resolve(res.data);
