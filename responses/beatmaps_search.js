@@ -13,7 +13,9 @@ const { log } = require('../tools/tools');
  */
 
 const _this = module.exports = async ( args ) => {
-	console.log('beatmaps_search', args)
+	
+	//console.log('beatmaps_search', args)
+
 	const authing = async (_args) => {
 		await auth_osu();
 		return await _this({ ..._args, api_v2_token: get_osu_token() });
