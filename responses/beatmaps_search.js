@@ -39,16 +39,14 @@ const _this = module.exports = async ( args ) => {
 			cursor_string: args.cursor_string || null
 		}
 
-		const url = `https://osu.ppy.sh/api/v2/beatmapsets/search?${Object.entries(params)
-			.filter( ([key, value]) => value !== null )
-			.map( x => x.join('=') ).join('&')}`;		
-
-		//console.log('url:', url);
+		const url = 'https://osu.ppy.sh/api/v2/beatmapsets/search';
 
 		try{
-			const res = await axios.get( url, {headers});
+			const res = await axios.get( url, { headers, params });
 
 			//console.log(res.status === 200 ? res.data : res );
+			
+			console.log(res.request.res.responseUrl)
 
 			if (res.status === 200) {
 				resolve(res.data);
