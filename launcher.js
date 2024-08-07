@@ -36,10 +36,10 @@ const enter_keys = {
         enable: false,
         text: defaults.stars_max
     },
-    min_circles: {
+    min_objects: {
         type: 'numbers',
         enable: false,
-        text: defaults.min_circles
+        text: defaults.min_objects
     },
     min_length: {
         type: 'numbers',
@@ -58,13 +58,20 @@ const enter_keys_actions = Object.keys(enter_keys);
 const command_props = {
     gamemode: { 
         variants: [
-            { text: 'all', args: 'mode std,taiko,mania,fruits' },       //gamemode: 0
-            { text: 'std,taiko,mania', args: 'mode std,taiko,mania' },  //gamemode: 1
-            { text: 'std,taiko', args: 'mode std,taiko' },              //gamemode: 2
-            { text: 'osu', args: 'mode std' },                          //gamemode: 3
-            { text: 'taiko', args: 'mode taiko' },                      //gamemode: 4
-            { text: 'mania', args: 'mode mania' },                      //gamemode: 5
-            { text: 'fruits', args: 'mode fruits' },                    //gamemode: 6
+            { text: 'all', args: 'mode all' },       					//gamemode: 0
+            { text: 'std', args: 'mode std' },                          //gamemode: 1
+            { text: 'taiko', args: 'mode taiko' },                      //gamemode: 2
+            { text: 'fruits', args: 'mode fruits' },                    //gamemode: 3
+			{ text: 'mania', args: 'mode mania' },                      //gamemode: 4
+            { text: 'std,taiko', args: 'mode std,taiko' },              //gamemode: 5
+			{ text: 'std,fruits', args: 'mode std,fruits' },            //gamemode: 6
+			{ text: 'std,mania', args: 'mode std,mania' },              //gamemode: 7
+			{ text: 'taiko,mania', args: 'mode taiko,mania' },          //gamemode: 8
+			{ text: 'fruits,mania', args: 'mode fruits,mania' },        //gamemode: 9
+			{ text: 'taiko,fruits', args: 'mode taiko,fruits' },        //gamemode: 10
+			{ text: 'std,taiko,mania', args: 'mode std,taiko,mania' },  //gamemode: 11
+			{ text: 'std,fruits,mania', args: 'mode std,fruits,mania' },//gamemode: 12
+			{ text: 'std,taiko,fruits', args: 'mode std,taiko,fruits' },//gamemode: 13
         ],
         inc: () => {
             menu_props.gamemode += 1;
@@ -75,10 +82,15 @@ const command_props = {
     },
     status: {
         variants: [
-            { text: 'ranked', args: 'status ranked' },
-            { text: 'loved', args: 'status loved' },
-            { text: 'qualified', args: 'status qualified' },
-            { text: 'graveyard', args: 'status graveyard' },
+			{ text: 'any', args: 'status any'},						//status 0
+            { text: 'ranked', args: 'status ranked' },				//status 1
+            { text: 'loved', args: 'status loved' },				//status 2
+            { text: 'qualified', args: 'status qualified' },		//status 3
+            { text: 'graveyard', args: 'status graveyard' },		//status 4
+			{ text: 'pending', args: 'status pending' },			//status 5
+			{ text: 'wip', args: 'status wip'},						//status 6
+			{ text: 'mine', args: 'status mine'},					//status 7
+			{ text: 'favourites', args: 'status favourites'}		//status 8
         ],
         inc: () => {
             menu_props.status += 1;
@@ -89,8 +101,8 @@ const command_props = {
     },
     is_continue: {
         variants: [
-            { text: 'no', args: 'continue no' },
-            { text: 'yes', args: 'continue yes' }
+            { text: 'no', 	args: 'continue no' },
+            { text: 'yes', 	args: 'continue yes' }
         ],
         toggle: () => {
             menu_props.continue += 1;
@@ -165,7 +177,7 @@ const save_presets = () => {
 
 const numbers = '0123456789';
 const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const symbols = ' ,.[]()-+*:;{}!#$%^&?|';
+const symbols = ' _,.[]()-+*:;{}!#$%^&?|';
 
 const command_build = () => {
     let command = [];
@@ -197,7 +209,7 @@ const refresh = () => {
     console.log(`${enter_keys.fav_count_min.enable?'> ':''}[R]`.yellow, `Favorites count min:`.white, `${enter_keys.fav_count_min.text.toString().green}${enter_keys.fav_count_min.enable?'_':''}`);
     console.log(`${enter_keys.stars_min.enable?'> ':''}[T]`.yellow, `Stars min:`.white, `${enter_keys.stars_min.text.toString().green}${enter_keys.stars_min.enable?'_':''}`);
     console.log(`${enter_keys.stars_max.enable?'> ':''}[Y]`.yellow, `Stars max:`.white, `${enter_keys.stars_max.text.toString().green}${enter_keys.stars_max.enable?'_':''}`);
-    console.log(`${enter_keys.min_circles.enable?'> ':''}[U]`.yellow, `Circles min:`.white, `${enter_keys.min_circles.text.toString().green}${enter_keys.min_circles.enable?'_':''}`);
+    console.log(`${enter_keys.min_objects.enable?'> ':''}[U]`.yellow, `Objects min:`.white, `${enter_keys.min_objects.text.toString().green}${enter_keys.min_objects.enable?'_':''}`);
     console.log(`${enter_keys.min_length.enable?'> ':''}[I]`.yellow, `Length min:`.white, `${enter_keys.min_length.text.toString().green}${enter_keys.min_length.enable?'_':''}`);
     console.log(`[O]`.yellow, `Is continue:`.white, `${command_props.is_continue.variants[menu_props.continue].text}`.green);
     console.log(`[ENTER]`.yellow, `Run command:`.white, `${command_build()}`.green);
@@ -269,7 +281,7 @@ const action_inputs = [
     {key: 'r', action: 'fav_count_min'},
     {key: 't', action: 'stars_min'},
     {key: 'y', action: 'stars_max'},
-    {key: 'u', action: 'min_circles'},
+    {key: 'u', action: 'min_objects'},
     {key: 'i', action: 'min_length'},
     {key: 's', action: 'save'},
 ];

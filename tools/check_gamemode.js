@@ -30,14 +30,18 @@ module.exports = (val) => {
         case 's':
         case '0':
             mode = 0;
+			break;
 
+		case 'all':
         default:
-            mode = 0;
-            break;
+            return {
+				name: 'all',
+				value: null
+			}
     }
 
 	return { 
-		int: mode, 
-		name: str_modes[mode] 
+		name: str_modes[mode],
+		value: mode.toString(), 
 	};
 }

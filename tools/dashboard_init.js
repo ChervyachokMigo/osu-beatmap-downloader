@@ -95,8 +95,8 @@ module.exports = {
                 ]
             },
             {
-                name: 'min_circles',
-                text: '[Параметры] Минимум кругов',
+                name: 'min_objects',
+                text: '[Параметры] Минимум объектов',
                 status: 'current',
                 values: [
                     { name: 'current', color: colors.neutral, text: '' }
