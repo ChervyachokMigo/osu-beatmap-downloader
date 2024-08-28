@@ -1,7 +1,7 @@
 const { log } = require(`./tools.js`);
 const config = require('../config.js');
-const { readdirSync, copyFileSync, rmSync } = require('fs');
-const path = require('path');
+const { readdirSync, copyFileSync, rmSync } = require('node:fs');
+const path = require('node:path');
 
 const move_file_sync = ({ src, dest }) => {
     try{

@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const {osu_db_load, beatmap_property} = require('osu-tools');
 
 const osu_db_json_path = path.join('data', 'beatmaps_osu_db.json');

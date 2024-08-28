@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('node:fs');
 const colors = require('colors');
 
 const formatAddZero = (t, symbols = 1) => {

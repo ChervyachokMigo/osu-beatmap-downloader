@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('node:fs');
 var { sleep, log } = require(`./tools.js`);
 var  download_quota  = require("../responses/download_quota.js");
 var  download_path  = require("./download_path.js");
@@ -6,7 +6,7 @@ var  download_path  = require("./download_path.js");
 const move_beatmaps = require('./move_beatmaps.js');
 const { dashboard_waiting_quota_start, dashboard_waiting_quota_end } = require('./dashboard_quota.js');
 const config = require('../config.js');
-const path = require('path');
+const path = require('node:path');
 
 module.exports = async function check_response (response, beatmapname) {
 	const filepath = path.join(download_path, beatmapname);

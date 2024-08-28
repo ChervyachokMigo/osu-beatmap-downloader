@@ -8,8 +8,8 @@ const config = require('./config.js');
 
 const download_path = require('./tools/download_path.js');
 
-const { existsSync } = require('fs');
-const path = require('path');
+const { existsSync } = require('node:fs');
+const path = require('node:path');
 const move_beatmaps = require('./tools/move_beatmaps.js');
 
 const dashboard = require('dashboard_framework');

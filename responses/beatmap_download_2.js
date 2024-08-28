@@ -1,6 +1,6 @@
 const axios = require('axios').default;
-const path = require('path');
-const fs = require('fs');
+const path = require('node:path');
+const fs = require('node:fs');
 const download_path = require('../tools/download_path');
 const { auth_osu, get_osu_token } = require('./osu_auth');
 const { log, get_time_string } = require('../tools/tools');

@@ -1,9 +1,9 @@
-const { execSync } = require('child_process');
+const { execSync } = require('node:child_process');
 const defaults = require('./misc/const_defaults.js');
 const keypress = require('keypress');
-const { readFileSync, writeFileSync } = require('fs');
+const { readFileSync, writeFileSync } = require('node:fs');
 const colors = require('colors');
-const path = require('path');
+const path = require('node:path');
 const { WEBPORT } = require('./config.js');
 
 const presets_path = path.join('data', 'presets.json');

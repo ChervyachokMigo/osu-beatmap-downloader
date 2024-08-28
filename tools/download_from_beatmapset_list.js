@@ -1,11 +1,11 @@
-const { readFileSync, existsSync, writeFileSync } = require('fs');
+const { readFileSync, existsSync, writeFileSync } = require('node:fs');
 const minimist = require('minimist');
 const { v2, auth } = require ('osu-api-extended');
 const { escapeString, checkDir } = require(`./tools.js`);
 const check_response = require('./check_response.js');
 const beatmap_download = require('../responses/beatmap_download.js');
 const config = require('../config.js');
-const path = require('path');
+const path = require('node:path');
 
 const args = minimist(process.argv.slice(2));
 
