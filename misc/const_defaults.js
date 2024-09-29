@@ -5,5 +5,6 @@ module.exports = {
     stars_max: 12,
     min_objects: 0,
     min_length: 0,
-    is_continue: 'no'
+    is_continue: 'no',
+	no_video: true
 }

@@ -110,6 +110,14 @@ module.exports = {
                     { name: 'current', color: colors.neutral, text: '' }
                 ]
             },
+			{
+                name: 'no_video',
+                text: '[Параметры] Видео',
+                status: 'current',
+                values: [
+                    { name: 'current', color: colors.neutral, text: '' }
+                ]
+            },
             {
                 name: 'cursor_string',
                 text: '[Параметры] Курсор',

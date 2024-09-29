@@ -9,14 +9,14 @@ const config = require('../config');
 const move_beatmaps = require('../tools/move_beatmaps');
 const dashboard = require('dashboard_framework');
 
-const _this = module.exports = async ({ beatmapset_id, output_filename, api_v2_token }) => {	
+const _this = module.exports = async ({ beatmapset_id, output_filename, api_v2_token, is_no_video = true }) => {	
 	if (!api_v2_token) {
 		await auth_osu();
 		return await _this({ beatmapset_id, output_filename, api_v2_token: get_osu_token() });
 	}
 
 	return await new Promise( async (resolve, reject) => {
-		const url = `https://osu.ppy.sh/api/v2/beatmapsets/${beatmapset_id}/download?noVideo=1`;
+		const url = `https://osu.ppy.sh/api/v2/beatmapsets/${beatmapset_id}/download${is_no_video ? '?noVideo=1' : ''}`;
 		const headers = {};
 		headers['Referer'] = 'https://osu.ppy.sh/';
 		headers['Authorization'] = `Bearer ${api_v2_token}`;

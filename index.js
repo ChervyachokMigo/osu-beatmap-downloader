@@ -3,7 +3,7 @@ const minimist = require('minimist');
 
 const defaults = require('./misc/const_defaults.js');
 const jsons = require(`./tools/jsons.js`);
-const { escapeString, log, checkDir, sleep, formatPercent } = require(`./tools/tools.js`);
+const { escapeString, log, checkDir, sleep, formatPercent, to_boolean, check_undefined } = require(`./tools/tools.js`);
 const config = require('./config.js');
 
 const download_path = require('./tools/download_path.js');
@@ -31,18 +31,20 @@ const download_beatmaps = async (mode) => {
     
     const args = minimist(process.argv.slice(2));
 
-    const FAV_COUNT_MIN = args.fav_count_min || config.fav_count_min || defaults.fav_count_min;
-    const stars_min = args.stars_min || config.stars_min || defaults.stars_min;
-    const stars_max = args.stars_max || config.stars_max || defaults.stars_max;
-    const maps_depth = args.maps_depth || config.maps_depth || defaults.maps_depth;
-    const min_objects = args.min_objects || config.min_objects || defaults.min_objects;
-    const min_length = args.min_length || config.min_length || defaults.min_length;
+    const FAV_COUNT_MIN = check_undefined([ args.fav_count_min, config.fav_count_min, defaults.fav_count_min ]);
+    const stars_min = check_undefined([ args.stars_min, config.stars_min, defaults.stars_min ]);
+    const stars_max = check_undefined([ args.stars_max, config.stars_max, defaults.stars_max ]);
+    const maps_depth = check_undefined([ args.maps_depth, config.maps_depth, defaults.maps_depth ]);
+    const min_objects = check_undefined([ args.min_objects, config.min_objects, defaults.min_objects ]);
+    const min_length = check_undefined([ args.min_length, config.min_length, defaults.min_length ]);
+	const no_video = check_undefined([ to_boolean(args.no_video), to_boolean(config.no_video), to_boolean(defaults.no_video) ]);
 
     await dashboard.change_text_item({name: 'fav_count_min', item_name: 'current', text: `${FAV_COUNT_MIN}`});
     await dashboard.change_text_item({name: 'stars', item_name: 'current', text: `★${stars_min}-${stars_max}`});
     await dashboard.change_text_item({name: 'maps_depth', item_name: 'current', text: `${maps_depth} страниц (${maps_depth * 50} карт)`});
     await dashboard.change_text_item({name: 'min_objects', item_name: 'current', text: `${min_objects}`});
     await dashboard.change_text_item({name: 'min_length', item_name: 'current', text: `${min_length} сек`});
+	await dashboard.change_text_item({name: 'no_video', item_name: 'current', text: `${no_video? 'без видео' : 'с видео'}`});
 
     is_continue_from_cursor(args.continue || defaults.is_continue)
 
@@ -59,14 +61,17 @@ const download_beatmaps = async (mode) => {
     const strict = args.strict || false;
     const query = args?.query ? strict  ? '"'+ args.query +'"' : args.query : null;
 
-    log(['', '',
-		`start mode ${green(gamemode.name)}`,
-		`query: ${query ? green(query) : query }`,
-		`status: ${green(beatmap_status)}`,
-		`favorite minimum count: ${yellow(FAV_COUNT_MIN)}`,
-		`stars: ${yellow(stars_min)}-${yellow(stars_max)}`,
-		`maps depth: ${yellow(maps_depth)} (${ yellow( (maps_depth * 50).toString() )})` ]
-		.join('\n') + '\n'
+	log(['', '',
+			`start mode ${green(gamemode.name)}`,
+			`query: ${query ? green(query) : query }`,
+			`status: ${green(beatmap_status)}`,
+			`favorite minimum count: ${yellow(FAV_COUNT_MIN)}`,
+			`stars: ${yellow(stars_min)}-${yellow(stars_max)}`,
+			`maps depth: ${yellow(maps_depth)} (${ yellow( (maps_depth * 50).toString() )})` ,
+			`min objects: ${yellow(min_objects)}`,
+			`min length: ${yellow(min_length)} сек`,
+			`no video: ${no_video}`
+		].join('\n') + '\n'
 	);
 
 	await search_beatmaps_loop({
@@ -123,7 +128,8 @@ const download_beatmaps = async (mode) => {
 						const success = await beatmap_download_2({
 							beatmapset_id, 
 							output_filename: `${beatmapset_id} ${escapeString(artist)} - ${escapeString(title)}.osz`,
-							api_v2_token: get_osu_token()
+							api_v2_token: get_osu_token(),
+							is_no_video: no_video
 						});
 
 						if (success && beatmap_status !== 'qualified') {

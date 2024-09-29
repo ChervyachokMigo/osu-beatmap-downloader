@@ -50,4 +50,19 @@ const _this = module.exports = {
         return `${formatAddZero(min, 2)}:${formatAddZero(sec, 2)}`
     },
 
+	to_boolean: (str) => {
+		return str === 'true' || str === true || str === '1' || str === 1;
+	},
+
+	check_undefined: (ar) => {
+		for (let i = 0; i < ar.length; i++) {
+            if (ar[i] === undefined) {
+                continue;
+            } else {
+				return ar[i];
+			}
+        }
+		return null;
+	}
+
 }

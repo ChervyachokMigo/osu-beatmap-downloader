@@ -12,7 +12,8 @@ const menu_props = {
     preset: 1,
     gamemode: 0,
     status: 0,
-    continue: 0
+    continue: 0,
+	no_video: 1
 };
 
 const enter_keys = {
@@ -111,6 +112,18 @@ const command_props = {
             }
         }
     },
+	no_video: {
+		variants: [
+			{ text: 'no', args: 'no_video false' },
+			{ text: 'yes', args: 'no_video true' }
+		],
+		toggle: () => {
+            menu_props.no_video += 1;
+            if ( menu_props.no_video >= command_props.no_video.variants.length){
+                menu_props.no_video = 0;
+            }
+        }
+	},
     presets: {
         variants: [
             { name: 'Custom' }
@@ -192,6 +205,8 @@ const command_build = () => {
         }
     }
 
+	command.push(command_props.no_video.variants[menu_props.no_video].args);
+
     command.push(command_props.is_continue.variants[menu_props.continue].args);
 
     return `start http://localhost:${WEBPORT} && node index.js --${command.join(' --')} && pause`;
@@ -211,6 +226,7 @@ const refresh = () => {
     console.log(`${enter_keys.stars_max.enable?'> ':''}[Y]`.yellow, `Stars max:`.white, `${enter_keys.stars_max.text.toString().green}${enter_keys.stars_max.enable?'_':''}`);
     console.log(`${enter_keys.min_objects.enable?'> ':''}[U]`.yellow, `Objects min:`.white, `${enter_keys.min_objects.text.toString().green}${enter_keys.min_objects.enable?'_':''}`);
     console.log(`${enter_keys.min_length.enable?'> ':''}[I]`.yellow, `Length min:`.white, `${enter_keys.min_length.text.toString().green}${enter_keys.min_length.enable?'_':''}`);
+    console.log(`[V]`.yellow, `No video:`.white, `${command_props.no_video.variants[menu_props.no_video].text}`.green);
     console.log(`[O]`.yellow, `Is continue:`.white, `${command_props.is_continue.variants[menu_props.continue].text}`.green);
     console.log(`[ENTER]`.yellow, `Run command:`.white, `${command_build()}`.green);
     if (menu_props.preset === 0) {
@@ -219,6 +235,10 @@ const refresh = () => {
 }
 
 const toggle_action_input = (key_name, action_name, ch, key) => {
+
+	if (typeof enter_keys[action_name] === 'undefined') {
+		return;
+	}
 
     if (enter_keys['save'].enable === false && key && key.name == key_name) {
         for (let action of enter_keys_actions){
@@ -283,6 +303,7 @@ const action_inputs = [
     {key: 'y', action: 'stars_max'},
     {key: 'u', action: 'min_objects'},
     {key: 'i', action: 'min_length'},
+	{key: 'v', action: 'no_video'},
     {key: 's', action: 'save'},
 ];
 
@@ -309,6 +330,11 @@ const init_key_events = () => {
 
             if (key && key.name == 'o') {
                 command_props.is_continue.toggle();
+                menu_props.preset = 0;
+            }
+
+			if (key && key.name == 'v') {
+                command_props.no_video.toggle();
                 menu_props.preset = 0;
             }
 
