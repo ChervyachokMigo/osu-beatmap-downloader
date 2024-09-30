@@ -9,7 +9,7 @@ const config = require('../config');
 const move_beatmaps = require('../tools/move_beatmaps');
 const dashboard = require('dashboard_framework');
 
-const _this = module.exports = async ({ beatmapset_id, output_filename, api_v2_token, is_no_video = true }) => {	
+const _this = module.exports = async ({ beatmapset_id, output_filename, api_v2_token, is_no_video = true, requests_limit_duration = 5 }) => {	
 	if (!api_v2_token) {
 		await auth_osu();
 		return await _this({ beatmapset_id, output_filename, api_v2_token: get_osu_token() });
@@ -61,8 +61,8 @@ const _this = module.exports = async ({ beatmapset_id, output_filename, api_v2_t
 						if (config.is_move_beatmaps) {
 							move_beatmaps();
 						}
-						log('sleep 5 min');
-						setTimeout( res, 5 * 60000 );
+						log(`sleep ${requests_limit_duration} min`);
+						setTimeout( res, requests_limit_duration * 60000 );
 					});
 					return await _this({ beatmapset_id, output_filename, api_v2_token });
 				} else {

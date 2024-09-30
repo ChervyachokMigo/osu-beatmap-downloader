@@ -31,13 +31,14 @@ const download_beatmaps = async (mode) => {
     
     const args = minimist(process.argv.slice(2));
 
-    const FAV_COUNT_MIN = check_undefined([ args.fav_count_min, config.fav_count_min, defaults.fav_count_min ]);
-    const stars_min = check_undefined([ args.stars_min, config.stars_min, defaults.stars_min ]);
-    const stars_max = check_undefined([ args.stars_max, config.stars_max, defaults.stars_max ]);
-    const maps_depth = check_undefined([ args.maps_depth, config.maps_depth, defaults.maps_depth ]);
-    const min_objects = check_undefined([ args.min_objects, config.min_objects, defaults.min_objects ]);
-    const min_length = check_undefined([ args.min_length, config.min_length, defaults.min_length ]);
+    const FAV_COUNT_MIN = Number(check_undefined([ args.fav_count_min, config.fav_count_min, defaults.fav_count_min ]));
+    const stars_min = Number(check_undefined([ args.stars_min, config.stars_min, defaults.stars_min ]));
+    const stars_max = Number(check_undefined([ args.stars_max, config.stars_max, defaults.stars_max ]));
+    const maps_depth = Number(check_undefined([ args.maps_depth, config.maps_depth, defaults.maps_depth ]));
+    const min_objects = Number(check_undefined([ args.min_objects, config.min_objects, defaults.min_objects ]));
+    const min_length = Number(check_undefined([ args.min_length, config.min_length, defaults.min_length ]));
 	const no_video = check_undefined([ to_boolean(args.no_video), to_boolean(config.no_video), to_boolean(defaults.no_video) ]);
+	const requests_limit_duration = Number(check_undefined([ args.requests_limit_duration, config.requests_limit_duration, defaults.requests_limit_duration ]));
 
     await dashboard.change_text_item({name: 'fav_count_min', item_name: 'current', text: `${FAV_COUNT_MIN}`});
     await dashboard.change_text_item({name: 'stars', item_name: 'current', text: `★${stars_min}-${stars_max}`});
@@ -70,7 +71,8 @@ const download_beatmaps = async (mode) => {
 			`maps depth: ${yellow(maps_depth)} (${ yellow( (maps_depth * 50).toString() )})` ,
 			`min objects: ${yellow(min_objects)}`,
 			`min length: ${yellow(min_length)} сек`,
-			`no video: ${no_video}`
+			`no video: ${no_video}`,
+			`requests limit duration: ${yellow(requests_limit_duration)} mins`
 		].join('\n') + '\n'
 	);
 
@@ -79,7 +81,8 @@ const download_beatmaps = async (mode) => {
 		status: beatmap_status,
 		nsfw: 'true',
 		cursor_string: cursor_string,
-		maps_depth: maps_depth
+		maps_depth: maps_depth,
+		requests_limit_duration
 		}, async (beatmapsets, page, total, error) => {
 
 			await dashboard.change_text_item({ 
@@ -129,7 +132,8 @@ const download_beatmaps = async (mode) => {
 							beatmapset_id, 
 							output_filename: `${beatmapset_id} ${escapeString(artist)} - ${escapeString(title)}.osz`,
 							api_v2_token: get_osu_token(),
-							is_no_video: no_video
+							is_no_video: no_video,
+							requests_limit_duration
 						});
 
 						if (success && beatmap_status !== 'qualified') {

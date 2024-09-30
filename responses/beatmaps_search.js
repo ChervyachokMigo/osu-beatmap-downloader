@@ -10,6 +10,7 @@ const { log } = require('../tools/tools');
  * @param {string} args.nsfw
  * @param {string} args.cursor_string
  * @param {string} args.api_v2_token
+ * @param {number} args.requests_limit_duration
  */
 
 const _this = module.exports = async ( args ) => {
@@ -66,8 +67,8 @@ const _this = module.exports = async ( args ) => {
 					//Too Many Requests
 					console.error(e.response.statusText);
 					await new Promise( res => {
-						log('sleep 5 min');
-						setTimeout( res, 5 * 60000 );
+						log(`sleep ${args.requests_limit_duration} min`);
+						setTimeout( res, args.requests_limit_duration * 60000 );
 					});
 					resolve(await authing(args));
 				} else {

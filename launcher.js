@@ -47,6 +47,11 @@ const enter_keys = {
         enable: false,
         text: defaults.min_length
     },
+	requests_limit_duration: {
+        type: 'numbers',
+        enable: false,
+        text: defaults.requests_limit_duration
+    },
     save: {
         type: 'text',
         enable: false,
@@ -227,7 +232,8 @@ const refresh = () => {
     console.log(`${enter_keys.min_objects.enable?'> ':''}[U]`.yellow, `Objects min:`.white, `${enter_keys.min_objects.text.toString().green}${enter_keys.min_objects.enable?'_':''}`);
     console.log(`${enter_keys.min_length.enable?'> ':''}[I]`.yellow, `Length min:`.white, `${enter_keys.min_length.text.toString().green}${enter_keys.min_length.enable?'_':''}`);
     console.log(`[V]`.yellow, `No video:`.white, `${command_props.no_video.variants[menu_props.no_video].text}`.green);
-    console.log(`[O]`.yellow, `Is continue:`.white, `${command_props.is_continue.variants[menu_props.continue].text}`.green);
+    console.log(`${enter_keys.requests_limit_duration.enable?'> ':''}[L]`.yellow, `Requests limit duration:`.white, `${enter_keys.requests_limit_duration.text.toString().green}${enter_keys.requests_limit_duration.enable?'_':''}`);
+	console.log(`[O]`.yellow, `Is continue:`.white, `${command_props.is_continue.variants[menu_props.continue].text}`.green);
     console.log(`[ENTER]`.yellow, `Run command:`.white, `${command_build()}`.green);
     if (menu_props.preset === 0) {
         console.log(`[S]`.yellow, `SAVE`.white, `${(enter_keys.save.text?enter_keys.save.text:'').toString().green}${enter_keys.save.enable?'_':''}` );
@@ -304,6 +310,7 @@ const action_inputs = [
     {key: 'u', action: 'min_objects'},
     {key: 'i', action: 'min_length'},
 	{key: 'v', action: 'no_video'},
+	{key: 'l', action: 'requests_limit_duration'},
     {key: 's', action: 'save'},
 ];
 

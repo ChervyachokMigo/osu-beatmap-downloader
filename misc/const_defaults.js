@@ -6,5 +6,6 @@ module.exports = {
     min_objects: 0,
     min_length: 0,
     is_continue: 'no',
-	no_video: true
+	no_video: true,
+	requests_limit_duration: 5
 }
