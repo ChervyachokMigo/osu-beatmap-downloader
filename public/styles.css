@@ -1,0 +1,197 @@
+body {
+    margin: auto;
+    padding: 0;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+    background-attachment: fixed;
+}
+
+.feed_event_icon > img {
+    border: 1px solid #616161;
+    border-radius: 25px;
+    width: 256px;
+    margin: 4px 0;
+}
+
+a {
+    text-decoration: none;
+    cursor: pointer;
+    color: white;
+    text-shadow: -1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, 1px 0 0 #000, 1px 1px 0 #000, 0 1px 0 #000, -1px 1px 0 #000, -1px 0 0 #000;
+}
+
+.feed_event:hover {
+    background: rgba(255,255,255,0.8);
+}
+
+.middle {
+    border-radius: 16px;
+    margin: 20px;
+    background-color: rgba(255,255,255,0.1);
+    font-weight: bolder;
+    font-size: larger;
+    color: white;
+    text-shadow: -1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, 1px 0 0 #000, 1px 1px 0 #000, 0 1px 0 #000, -1px 1px 0 #000, -1px 0 0 #000;
+}
+
+.status {
+    /*padding: 4px 4px 0 4px;*/
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    font-family: monospace;
+}
+
+.status_item {
+    display: flex;
+    flex-direction: row;
+    width: fit-content;
+}
+
+.status_name {
+    margin: auto 0;
+}
+
+.status_icon {
+    width: 16px;
+    height: 16px;
+    margin: 9px;
+    padding: 0;
+    border-radius: 50%;    
+}
+
+.progress {
+	display: flex;
+    flex-direction: row;
+    width: fit-content;
+    /*padding: 0 4px 4px 14px;*/
+    font-family: monospace;
+}
+
+.progress_bar {
+	appearance: none;
+}
+
+.progress_bar::-webkit-progress-bar {
+	background: #eee;
+	border-radius: 25px;
+}
+
+.progress_bar::-webkit-progress-value {
+	background: #316be9;
+	border-radius: 25px;
+}
+
+.progress_bar::-moz-progress-bar {
+	background: #316be9;
+	border-radius: 25px;
+}
+
+.progress_bar::-webkit-progress-inner-element {
+	border: #000 solid 1px;
+	border-radius: 25px;
+}
+
+.bottom {
+    width: 100vw;
+}
+
+.feed {
+    display: flex;
+    flex-direction: row;
+    width: max-content;
+    margin: auto;
+}
+
+.feed_event {
+    background: rgba(255,255,255,0.4);
+    border: 1px solid rgb(97, 97, 97);
+    border-radius: 50px;
+    height: fit-content;
+    padding: 8px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    width: auto;
+    max-width: 500px;
+    margin: 0px 8px 8px auto;
+}
+
+.feed_event_title {
+    font-weight: bold;
+    font-size: large;
+    padding: 0 8px;
+}
+
+.feed_event_desc {
+    font-size: small;
+    padding: 0 8px;
+}
+
+.overflow {
+    top: 20px;
+    right: 20px;
+    position: fixed;
+    /*background: rgba(255,255,255,0.1);
+    border-radius: 16px;*/
+}
+
+.overflow > div > img:hover {
+    animation-duration: 0.3s;
+    animation-name: scalein;
+    animation-fill-mode: forwards;
+}
+
+@keyframes scalein {
+    from {
+        scale: 1;
+    }
+
+    to {
+        scale: 1.1;
+        animation-play-state: paused;
+    }
+}
+
+.overflow img {
+    width: 32px;
+    margin: 16px;
+    -webkit-filter: drop-shadow(1px 1px 0 rgba(0,0,0,0.4))
+                    drop-shadow(-1px -1px 0 rgba(0,0,0,0.4)) 
+                    drop-shadow(1px -1px 0 rgba(0,0,0,0.4)) 
+                    drop-shadow(-1px 1px 0 rgba(0,0,0,0.4)) ;
+
+    filter: drop-shadow(1px 1px 0 rgba(0,0,0,0.4)) 
+            drop-shadow(-1px -1px 0 rgba(0,0,0,0.4)) 
+            drop-shadow(1px -1px 0 rgba(0,0,0,0.4)) 
+            drop-shadow(-1px 1px 0 rgba(0,0,0,0.4)) ;
+}
+
+.hidden {
+	display: none;
+}
+
+.feed_event_ticker {
+	font-family: monospace;
+	font-style: normal;
+	font-weight: bolder;
+    font-size: large;
+	width: max-content;
+	text-wrap: nowrap;
+	top:  0;
+	left: 100vw;
+	position: absolute;
+	z-index: 100;
+	opacity: 1;
+	animation: ticker 30s infinite linear;
+}
+
+@keyframes ticker {
+  0%{
+    left: 100vw;
+  }
+  100%{
+    left: -500vw;
+  }
+}

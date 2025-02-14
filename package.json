@@ -1,5 +1,5 @@
 {
-  "name": "osu_api_test",
+  "name": "osu-beatmap-downloader",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

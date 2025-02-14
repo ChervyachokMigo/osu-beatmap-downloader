@@ -2,6 +2,7 @@ const { auth } = require ('osu-api-extended');
 const { login, password } = require('../config.js');
 const path = require('node:path');
 const { readFileSync, existsSync, writeFileSync } = require('node:fs');
+const { log } = require('../tools/tools.js');
 
 const osu_token_path = path.join('data', 'osu_token.json');
 
