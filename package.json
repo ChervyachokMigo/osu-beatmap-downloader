@@ -7,7 +7,7 @@
     "start": "node index.js",
     "gui": "electron ."
   },
-  "author": "",
+  "author": "ChervyachokMigo",
   "license": "ISC",
   "dependencies": {
     "axios": "^1.7.3",
