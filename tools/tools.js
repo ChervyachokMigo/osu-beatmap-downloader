@@ -22,8 +22,8 @@ const _this = module.exports = {
     },
 
     sleep: async (seconds) => {
-        console.log('> sleeping for', (seconds/60).toFixed(1), 'mins');
-        return new Promise( (resolve) => {
+        console.log(' > sleeping for', (seconds/60).toFixed(1), 'mins');
+        return await new Promise( (resolve) => {
             setTimeout(resolve, seconds * 1000);
         });
     },

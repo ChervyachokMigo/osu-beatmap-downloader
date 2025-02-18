@@ -8,6 +8,8 @@ const { dashboard_waiting_quota_start, dashboard_waiting_quota_end } = require('
 const config = require('../config.js');
 const path = require('node:path');
 
+const waiting_secs = 120;
+
 module.exports = async function check_response (response, beatmapname) {
 	const filepath = path.join(download_path, beatmapname);
 
@@ -16,8 +18,8 @@ module.exports = async function check_response (response, beatmapname) {
         if (response) {
 
             if (response.toString().indexOf('time out') > -1) {
-				log(`request is timeout after 60, retry`);
-				await sleep(120);
+				log(`request is timeout after ${waiting_secs} secs, retry`);
+				await sleep(waiting_secs);
 				res('timeout');
 				return;
 			}
@@ -34,19 +36,17 @@ module.exports = async function check_response (response, beatmapname) {
 				}
             }
 
-			const waiting_mins = 2;
-
             log(`${await download_quota()} quota used`);
             log(response);
-            log(`waiting ${waiting_mins} minutes for retry.`);
+            log(`waiting ${waiting_secs} secs for retry.`);
             
-            await dashboard_waiting_quota_start(waiting_mins);
+            await dashboard_waiting_quota_start(waiting_secs);
 
 			if (config.is_move_beatmaps) {
 				move_beatmaps();
 			}
 			
-            await sleep(60 * waiting_mins);
+            await sleep(waiting_secs);
             await dashboard_waiting_quota_end();
         }
 

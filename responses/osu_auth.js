@@ -49,5 +49,14 @@ module.exports = {
 
     get_osu_token: () => {
         return access_token?.access_token;
-    }
+    },
+
+	check_token: async (force = false) => {
+		if (force) {
+            await login_osu();
+        }
+		if (!access_token?.access_token) {
+			await auth_osu();
+		}
+	}
 }

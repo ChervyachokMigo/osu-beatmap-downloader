@@ -1,5 +1,4 @@
 const beatmaps_search = require("../responses/beatmaps_search");
-const { get_osu_token } = require("../responses/osu_auth");
 const { log } = require("../tools/tools");
 const { yellow } = require("colors");
 const { save_last_cursor } = require("./cursor");
@@ -28,8 +27,7 @@ module.exports = async ( args, callback ) => {
 
 		const res = await beatmaps_search({
 			...args,
-			cursor_string,
-			api_v2_token: get_osu_token()
+			cursor_string
 		})
 
 		if ( !res ) {

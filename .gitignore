@@ -8,3 +8,4 @@ test.js
 founded_beatmaps.txt
 download_test.js
 request_test.js
+tests/beatmaps/test.test

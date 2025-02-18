@@ -1,6 +1,4 @@
 
-const minimist = require('minimist');
-
 const defaults = require('./misc/const_defaults.js');
 const jsons = require(`./tools/jsons.js`);
 const { escapeString, log, checkDir, sleep, formatPercent, to_boolean, check_undefined } = require(`./tools/tools.js`);
@@ -14,7 +12,7 @@ const move_beatmaps = require('./tools/move_beatmaps.js');
 
 const dashboard = require('dashboard_framework');
 const { load_last_cursor, is_continue_from_cursor } = require('./tools/cursor.js');
-const { get_osu_token, auth_osu } = require('./responses/osu_auth.js');
+const { auth_osu } = require('./responses/osu_auth.js');
 const { dashboard_init } = require('./tools/dashboard_init.js');
 const dashboard_end = require('./tools/dashboard_end.js');
 
@@ -23,22 +21,15 @@ const check_beatmap_status = require('./tools/check_beatmap_status.js');
 const { yellow, green } = require('colors');
 const beatmap_download_2 = require('./responses/beatmap_download_2.js');
 const search_beatmaps_loop = require('./tools/search_beatmaps_loop.js');
+const { set_args, get_args, get_arg } = require('./tools/process_args.js');
 
 checkDir(download_path);
 checkDir(path.join(__dirname, 'data'));
 
 const download_beatmaps = async (mode) => {
-    
-    const args = minimist(process.argv.slice(2));
 
-    const FAV_COUNT_MIN = Number(check_undefined([ args.fav_count_min, config.fav_count_min, defaults.fav_count_min ]));
-    const stars_min = Number(check_undefined([ args.stars_min, config.stars_min, defaults.stars_min ]));
-    const stars_max = Number(check_undefined([ args.stars_max, config.stars_max, defaults.stars_max ]));
-    const maps_depth = Number(check_undefined([ args.maps_depth, config.maps_depth, defaults.maps_depth ]));
-    const min_objects = Number(check_undefined([ args.min_objects, config.min_objects, defaults.min_objects ]));
-    const min_length = Number(check_undefined([ args.min_length, config.min_length, defaults.min_length ]));
-	const no_video = check_undefined([ to_boolean(args.no_video), to_boolean(config.no_video), to_boolean(defaults.no_video) ]);
-	const requests_limit_duration = Number(check_undefined([ args.requests_limit_duration, config.requests_limit_duration, defaults.requests_limit_duration ]));
+	const {FAV_COUNT_MIN, stars_min, stars_max, maps_depth, min_objects, min_length, no_video, 
+		cursor, is_continue, status, query} = get_args();
 
     await dashboard.change_text_item({name: 'fav_count_min', item_name: 'current', text: `${FAV_COUNT_MIN}`});
     await dashboard.change_text_item({name: 'stars', item_name: 'current', text: `★${stars_min}-${stars_max}`});
@@ -47,20 +38,17 @@ const download_beatmaps = async (mode) => {
     await dashboard.change_text_item({name: 'min_length', item_name: 'current', text: `${min_length} сек`});
 	await dashboard.change_text_item({name: 'no_video', item_name: 'current', text: `${no_video? 'без видео' : 'с видео'}`});
 
-    is_continue_from_cursor(args.continue || defaults.is_continue)
+    is_continue_from_cursor(is_continue || defaults.is_continue);
 
-    let cursor_string = args.cursor || load_last_cursor();
+    let cursor_string = cursor || load_last_cursor();
 
     await dashboard.change_text_item({name: 'cursor_string', item_name: 'last', text: `${cursor_string}`});
 
     const gamemode = check_gamemode(mode);
-    const beatmap_status = check_beatmap_status(args.status);
+    const beatmap_status = check_beatmap_status(status);
 
     await dashboard.change_status({ name: 'download_status', status: beatmap_status });
     await dashboard.change_status({ name: 'download_mode', status: gamemode.name });
-
-    const strict = args.strict || false;
-    const query = args?.query ? strict  ? '"'+ args.query +'"' : args.query : null;
 
 	log(['', '',
 			`start mode ${green(gamemode.name)}`,
@@ -71,8 +59,7 @@ const download_beatmaps = async (mode) => {
 			`maps depth: ${yellow(maps_depth)} (${ yellow( (maps_depth * 50).toString() )})` ,
 			`min objects: ${yellow(min_objects)}`,
 			`min length: ${yellow(min_length)} сек`,
-			`no video: ${no_video}`,
-			`requests limit duration: ${yellow(requests_limit_duration)} mins`
+			`no video: ${no_video}`
 		].join('\n') + '\n'
 	);
 
@@ -81,8 +68,7 @@ const download_beatmaps = async (mode) => {
 		status: beatmap_status,
 		nsfw: 'true',
 		cursor_string: cursor_string,
-		maps_depth: maps_depth,
-		requests_limit_duration
+		maps_depth: maps_depth
 		}, async (beatmapsets, page, total, error) => {
 
 			await dashboard.change_text_item({ 
@@ -131,9 +117,7 @@ const download_beatmaps = async (mode) => {
 						const success = await beatmap_download_2({
 							beatmapset_id, 
 							output_filename: `${beatmapset_id} ${escapeString(artist)} - ${escapeString(title)}.osz`,
-							api_v2_token: get_osu_token(),
-							is_no_video: no_video,
-							requests_limit_duration
+							is_no_video: no_video
 						});
 
 						if (success && beatmap_status !== 'qualified') {
@@ -170,16 +154,18 @@ const main = async () => {
 	jsons.load_beatmaplist();
     await dashboard.change_status({name: 'db_scan', status: 'ready'});
 
-    const args = minimist(process.argv.slice(2));
-    
-	if (args.mode){
-        const modes = args.mode.split(',');
+	set_args(process.argv.slice(2));
+
+	const args_mode = get_arg('mode');
+
+	if (args_mode){
+        const modes = args_mode.split(',');
         if ( modes.length > 1 ){
             for (let mode of modes) {
                 await download_beatmaps(mode);
             };
         } else {
-            await download_beatmaps(args.mode);
+            await download_beatmaps(args_mode);
         }
     } else {
         await download_beatmaps('all');

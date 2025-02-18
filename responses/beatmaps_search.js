@@ -1,5 +1,5 @@
 const axios = require('axios').default;
-const { auth_osu, get_osu_token } = require('./osu_auth');
+const { auth_osu, get_osu_token, check_token } = require('./osu_auth');
 const { log } = require('../tools/tools');
 
 /**
@@ -9,28 +9,17 @@ const { log } = require('../tools/tools');
  * @param {string} args.gamemode
  * @param {string} args.nsfw
  * @param {string} args.cursor_string
- * @param {string} args.api_v2_token
- * @param {number} args.requests_limit_duration
  */
 
 const _this = module.exports = async ( args ) => {
 
-	//console.log('beatmaps_search', args)
-
-	const authing = async (_args) => {
-		await auth_osu();
-		return await _this({ ..._args, api_v2_token: get_osu_token() });
-	}
-
-	if (!args.api_v2_token) {
-		return await authing(args);
-	}
+	await check_token();
 
 	return await new Promise( async (resolve, reject) => {
 		
 		const headers = {};
 		headers['Referer'] = 'https://osu.ppy.sh/';
-		headers['Authorization'] = `Bearer ${args.api_v2_token}`;
+		headers['Authorization'] = `Bearer ${get_osu_token()}`;
 		headers['accept'] = `application/json`;
 		headers['content-Type'] = `application/json`;
 
@@ -59,56 +48,9 @@ const _this = module.exports = async ( args ) => {
 				console.error( res.status, res.statusText, typeof res.data, res.data.length );
 			}
 		} catch (e) {
-			if (e.code === 'ERR_BAD_REQUEST') {
-				console.log('');
-				log('Bad request');
+			await catch_errors(e);
 
-				if (e.response.status === 429) {
-					//Too Many Requests
-					console.error(e.response.statusText);
-					await new Promise( res => {
-						log(`sleep ${args.requests_limit_duration} min`);
-						setTimeout( res, args.requests_limit_duration * 60000 );
-					});
-					resolve(await authing(args));
-				} else {
-					console.error(JSON.parse(e.response.data).error.toString('utf8'));
-					console.log(e.response)
-				}
-
-				await new Promise( res => {
-					log('sleep 5 sec');
-					setTimeout( res, 5000 );
-				});
-
-				resolve(false);
-				return false
-			}
-
-			if (e.code === 'ECONNRESET') {
-				console.log('');
-				log('No interntet connection, data loss, retry');
-				await new Promise( res => {
-					console.log('sleep 5 sec');
-					setTimeout( res, 5000 );
-				});
-				resolve(await authing(args));
-			}
-
-			if (e.code === 'ENOTFOUND') {
-				console.log('');
-				log('Address not found, retry');
-				await new Promise( res => {
-					console.log('sleep 5 sec');
-					setTimeout( res, 5000 );
-				});
-				resolve(await authing(args));
-			}
-
-			console.log('');
-			console.log( 'search error', e );
-
-			reject({ error: e.code });
+			resolve(await _this(args));
 		}
 	});
 }
