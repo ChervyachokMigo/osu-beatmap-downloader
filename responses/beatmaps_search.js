@@ -1,6 +1,7 @@
 const axios = require('axios').default;
 const { auth_osu, get_osu_token, check_token } = require('./osu_auth');
 const { log } = require('../tools/tools');
+const { catch_errors } = require('./catch_errors');
 
 /**
  * @param {Object} args arguments

@@ -1,8 +1,6 @@
-const config = require("../config");
-const { requests_limit_duration } = require("../misc/const_defaults");
 const { get_args } = require("../tools/process_args");
-const { log, sleep, check_undefined } = require("../tools/tools");
-
+const { log, sleep } = require("../tools/tools");
+const { login_osu } = require("./osu_auth");
 
 const catch_errors = async (e) => {
 	const { requests_limit_duration } = get_args();
@@ -11,14 +9,18 @@ const catch_errors = async (e) => {
 	if (e.code === 'ERR_BAD_REQUEST') {
 		log('Bad request');
 		//Too Many Requests
-		//UNAUTHORIZED
-		if ( e.response.status === 429 || e.response.status === 401 ) {
+		if ( e.response.status === 429 ) {
 			console.error(' RESPONSE >', e?.response?.status, e?.response?.statusText);
 			return await sleep( requests_limit_duration * 60 );
+		//UNAUTHORIZED
+		} else if ( e.response.status === 401 ){
+			console.error(' RESPONSE >', e?.response?.status, e?.response?.statusText);
+			await login_osu();
+			return await sleep( 5 );
 		} else {
 			console.error(JSON.parse( e?.response?.data || {})?.error?.toString('utf8'));
 			console.log(e?.response);
-			return await sleep(5);
+			return await sleep( 5 );
 		}
 	}
 
