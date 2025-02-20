@@ -1,21 +1,21 @@
-п»ї
+
 @echo off
 
-chcp 65001
+chcp 1251
 echo =================
-echo РџРµСЂРІС‹Р№ Р·Р°РїСѓСЃРє Р·Р°РіСЂСѓР·С‡РёРєР°
+echo Первый запуск загрузчика
 echo First run of downloader
-echo Р—Р°РїСѓСЃРєР°Р№С‚Рµ С‚РѕР»СЊРєРѕ РѕРґРёРЅ, РїРµСЂРІС‹Р№, СЂР°Р·
+echo Запускайте только один, первый, раз
 echo Run this only once
-echo Р’РќРРњРђРќРР•, СЃРѕС‚СЂРµС‚СЃСЏ Р±Р°Р·Р° СЃРєР°С‡Р°РЅС‹С… РєР°СЂС‚, РѕС‚СЃРєР°РЅРёСЂРѕРІР°РЅР°СЏ Р±Р°Р·Р° РѕСЃСѓ Рё РЅР°СЃС‚СЂРѕР№РєРё РІ config.js
+echo ВНИМАНИЕ, сотрется база скачаных карт, отсканированая база осу и настройки в config.js
 echo WARNING, It erase data of downloaded maps, data of scan osu db and setting from config.js
-echo РљРѕРіРґР° РѕС‚РєСЂРѕРµС‚СЃСЏ config.js РёР·РјРµРЅРёС‚Рµ РїСѓС‚Рё Рё РІРІРµРґРёС‚Рµ СЃРІРѕРё РѕСЃСѓ Р»РѕРіРёРЅ Рё РїР°СЂРѕР»СЊ, Р° Р·Р°С‚РµРј Р·Р°РєСЂРѕР№С‚Рµ РѕРєРЅРѕ
+echo Когда откроется config.js измените пути и введите свои осу логин и пароль, а затем закройте окно
 echo When config.js will open you must change osu path and enter your osu login and password, after that you must close editor window
 
 :loop
 set /p input=Type "y" to continue: 
 if "%input%"=="y" (
-    echo Р’С‹ РІРІРµР»Рё "y".
+    echo Вы ввели "y".
     goto process
 ) else (
     goto exit
