@@ -17,19 +17,25 @@ const { dashboard_init } = require('./tools/dashboard_init.js');
 const dashboard_end = require('./tools/dashboard_end.js');
 
 const check_gamemode = require('./tools/check_gamemode.js');
-const check_beatmap_status = require('./tools/check_beatmap_status.js');
+
 const { yellow, green } = require('colors');
 const beatmap_download_2 = require('./responses/beatmap_download_2.js');
 const search_beatmaps_loop = require('./tools/search_beatmaps_loop.js');
 const { set_args, get_args, get_arg } = require('./tools/process_args.js');
+const get_current_gamemode_by_args = require('./tools/get_current_gamemode_by_args.js');
 
 checkDir(download_path);
 checkDir(path.join(__dirname, 'data'));
 
-const download_beatmaps = async (mode) => {
+
+const download_beatmaps = async () => {
 
 	const {FAV_COUNT_MIN, stars_min, stars_max, maps_depth, min_objects, min_length, no_video, 
-		cursor, is_continue, status, query} = get_args();
+		cursor, is_continue, beatmap_status, query, mode} = get_args();
+
+	const current_gamemode = get_current_gamemode_by_args(mode);
+
+	const gamemode = check_gamemode(current_gamemode);
 
     await dashboard.change_text_item({name: 'fav_count_min', item_name: 'current', text: `${FAV_COUNT_MIN}`});
     await dashboard.change_text_item({name: 'stars', item_name: 'current', text: `★${stars_min}-${stars_max}`});
@@ -42,10 +48,7 @@ const download_beatmaps = async (mode) => {
 
     let cursor_string = cursor || load_last_cursor();
 
-    await dashboard.change_text_item({name: 'cursor_string', item_name: 'last', text: `${cursor_string}`});
-
-    const gamemode = check_gamemode(mode);
-    const beatmap_status = check_beatmap_status(status);
+    await dashboard.change_text_item({name: 'cursor_string', item_name: 'last', text: `${cursor_string ? cursor_string: 'первая страница'}`});
 
     await dashboard.change_status({ name: 'download_status', status: beatmap_status });
     await dashboard.change_status({ name: 'download_mode', status: gamemode.name });
@@ -71,12 +74,14 @@ const download_beatmaps = async (mode) => {
 		maps_depth: maps_depth
 		}, async (beatmapsets, page, total, error) => {
 
-			await dashboard.change_text_item({ 
-				name: 'total_maps', 
-				item_name: 'current', 
-				text: `${page*50}/${total} (${formatPercent(page*50, total, 2)}%)` });
-
 			for (let idx = 0; idx < beatmapsets.length; idx++){
+				let estimate_maps = total - ((page - 1) * 50) - idx;
+
+				await dashboard.change_text_item({ 
+					name: 'total_maps', 
+					item_name: 'current', 
+					text: `${estimate_maps}/${total} (${formatPercent(estimate_maps, total, 2)}%)` });
+
 				if (beatmapsets[idx]?.availability && beatmapsets[idx]?.availability?.download_disabled === false ) {
 					const beatmaps_selected = beatmapsets[idx].beatmaps.filter( val => { 
 						return (gamemode.name === 'all' || val.mode === gamemode.name) && 
@@ -94,8 +99,12 @@ const download_beatmaps = async (mode) => {
 					const fav_count = beatmapsets[idx].favourite_count;
 					const artist = beatmapsets[idx].artist;
 					const title = beatmapsets[idx].title;
+					const status = beatmapsets[idx].status;
+
+					let current_idx_with_page = (page - 1) * 50 + idx;
 
 					if( fav_count >= FAV_COUNT_MIN && !jsons.find(beatmapset_id) ){
+						console.log('[', `${current_idx_with_page}/${total}`,']', '[', 'X'.red, ']', beatmapset_id, artist, title);
 
 						await dashboard.css_apply({
 							selector: 'body', 
@@ -120,10 +129,12 @@ const download_beatmaps = async (mode) => {
 							is_no_video: no_video
 						});
 
-						if (success && beatmap_status !== 'qualified') {
+						if (success && status !== 'qualified') {
+							console.log('');
 							jsons.add_new(beatmapset_id);
-							console.log('download complete');
 						}
+					} else {
+						console.log('[', `${current_idx_with_page}/${total}`,']', '[', 'V'.green, ']', beatmapset_id, artist, title);
 					}
 
 				} else {
@@ -132,9 +143,22 @@ const download_beatmaps = async (mode) => {
 			}
 		}
 	)
+
+	await dashboard.change_status({name: 'total_maps', status: 'waiting'});
+
+	if (config.is_move_beatmaps) {
+        move_beatmaps();
+    }
+
+    //waiting 3 minutes for restart
+	await sleep(180);
+	await download_beatmaps();
 }
 
 const main = async () => {
+
+	set_args(process.argv.slice(2));
+
     if (!existsSync(config.osuFolder)){
         log(`[config: osuFolder] ${config.osuFolder} не существует`);
         await sleep(99999);
@@ -149,34 +173,18 @@ const main = async () => {
     
     await auth_osu();
     await dashboard.change_status({name: 'osu_auth', status: 'on'});
-
 	await dashboard.change_status({name: 'db_scan', status: 'checking'});
+
 	jsons.load_beatmaplist();
     await dashboard.change_status({name: 'db_scan', status: 'ready'});
-
-	set_args(process.argv.slice(2));
-
-	const args_mode = get_arg('mode');
-
-	if (args_mode){
-        const modes = args_mode.split(',');
-        if ( modes.length > 1 ){
-            for (let mode of modes) {
-                await download_beatmaps(mode);
-            };
-        } else {
-            await download_beatmaps(args_mode);
-        }
-    } else {
-        await download_beatmaps('all');
-    }
-
-    if (config.is_move_beatmaps) {
-        move_beatmaps();
-    }
+	
+    await download_beatmaps();
 
     await dashboard_end();
 
+	await sleep(180);
+
+	process.exit(0);
 }
 
 main();

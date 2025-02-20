@@ -54,7 +54,8 @@ module.exports = {
                     { name: 'osu', color: colors.neutral, text: 'osu standart' },
                     { name: 'taiko', color: colors.neutral, text: 'osu taiko' },
                     { name: 'fruits', color: colors.neutral, text: 'Catch The Beats' },
-                    { name: 'mania', color: colors.neutral, text: 'osu mania' }
+                    { name: 'mania', color: colors.neutral, text: 'osu mania' },
+					{ name: 'all', color: colors.neutral, text: 'все режимы' },
                 ]
             },
             {
@@ -132,6 +133,7 @@ module.exports = {
                 status: 'current',
                 values: [
                     { name: 'current', color: colors.neutral, text: '0' },
+					{ name: 'waiting', color: colors.neutral, text: 'Ожидание' },
                     { name: 'end', color: colors.neutral, text: 'Операция завершена' }
                 ]
             },
@@ -140,6 +142,7 @@ module.exports = {
                 text: 'Скачивание',
                 status: 'current',
                 values: [
+					{ name: 'none', color: colors.neutral, text: 'нет' },
                     { name: 'current', color: colors.neutral, text: 'нет' },
                 ]
             },

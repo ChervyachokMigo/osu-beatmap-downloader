@@ -3,7 +3,7 @@ const path = require('node:path');
 const fs = require('node:fs');
 const download_path = require('../tools/download_path');
 const { get_osu_token, check_token } = require('./osu_auth');
-const { log, get_time_string } = require('../tools/tools');
+const { log, get_time_string, print_empty_string, empty_string } = require('../tools/tools');
 const { yellow, green } = require('colors');
 const config = require('../config');
 const move_beatmaps = require('../tools/move_beatmaps');
@@ -25,7 +25,9 @@ const _this = module.exports = async ({ beatmapset_id, output_filename, is_no_vi
 		headers['content-Type'] = `application/octet-stream`;
 		try{
 			log(`downloading ${yellow(beatmapset_id.toString())} to ${green( path.join(config.download_folder, output_filename) )}`);
-            
+
+			await dashboard.change_status({ name: 'download_estimate', status: 'current'});
+
 			const res = await axios.get( url, {
 				headers, 
 				responseType: 'arraybuffer', 
@@ -37,10 +39,11 @@ const _this = module.exports = async ({ beatmapset_id, output_filename, is_no_vi
 						item_name: 'current',
 						text: e.estimated ? `${estimated} сек`: 'нет' 
 					});
-					
-					process.stdout.write( `[${yellow(get_time_string(new Date()))}] Downloading progress ${(e.progress*100).toFixed(1)} % complete, estimated ${estimated}sec\r`)
-				}});
-				
+					process.stdout.write( `[${yellow(get_time_string(new Date()))}] Downloading progress ${(e.progress*100).toFixed(1)} % complete, estimated ${estimated}sec\r`);
+				}
+			});
+
+			await dashboard.change_status({ name: 'download_estimate', status: 'none'});
 			
 			fs.writeFileSync( path.join(download_path, output_filename), res.data);
 

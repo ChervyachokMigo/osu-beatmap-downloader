@@ -7,6 +7,5 @@ module.exports = async () => {
         title: `Скачивание закончено`,
     });
     await dashboard.change_status({name: 'total_maps', status: 'end'});
-	await sleep(180);
-	process.exit(0);
+
 }

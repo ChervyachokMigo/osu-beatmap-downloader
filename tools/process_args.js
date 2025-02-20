@@ -2,6 +2,7 @@ const minimist = require("minimist");
 const config = require("../config");
 const defaults = require("../misc/const_defaults");
 const { check_undefined, to_boolean } = require("./tools");
+const check_beatmap_status = require("./check_beatmap_status");
 
 const parsed_args = {};
 
@@ -20,11 +21,13 @@ module.exports = {
 		parsed_args.mode = check_undefined([args.mode]);
 		parsed_args.cursor = check_undefined([args.cursor]);
 		parsed_args.is_continue = check_undefined([args.continue]);
-		parsed_args.status = check_undefined([args.status]);
+		parsed_args.beatmap_status = check_undefined([check_beatmap_status(args.status)]);
 
 		parsed_args.strict = args.strict || false;
 		parsed_args.query = args?.query ? (parsed_args.strict ? '"'+ args.query +'"' : args.query) : null;
 	},
+
+	set_arg: (name) => parsed_args[name],
 
 	get_args: () => parsed_args,
 

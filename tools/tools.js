@@ -63,6 +63,7 @@ const _this = module.exports = {
 			}
         }
 		return null;
-	}
-
+	},
+	
+	print_empty_string: () => process.stdout.write( '                                                                                    \r' ),
 }
