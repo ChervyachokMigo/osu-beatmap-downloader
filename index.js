@@ -27,6 +27,7 @@ const get_current_gamemode_by_args = require('./tools/get_current_gamemode_by_ar
 checkDir(download_path);
 checkDir(path.join(__dirname, 'data'));
 
+let is_first = true;
 
 const download_beatmaps = async () => {
 
@@ -71,7 +72,7 @@ const download_beatmaps = async () => {
 		status: beatmap_status,
 		nsfw: 'true',
 		cursor_string: cursor_string,
-		maps_depth: maps_depth
+		maps_depth: is_first ? maps_depth : 1,
 		}, async (beatmapsets, page, total, error) => {
 
 			for (let idx = 0; idx < beatmapsets.length; idx++){
@@ -149,6 +150,8 @@ const download_beatmaps = async () => {
 	if (config.is_move_beatmaps) {
         move_beatmaps();
     }
+
+	is_first = false;
 
     //waiting 3 minutes for restart
 	await sleep(180);
