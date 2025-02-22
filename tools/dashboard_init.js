@@ -5,7 +5,7 @@ module.exports = {
     dashboard_init: async () => {
         const colors = { 
             enable: [59, 124, 255], 
-            disable: [25, 53, 110], 
+            disable: [192, 50, 50], 
             processing: [182, 205, 252],
             neutral: [97, 97, 97]
         };

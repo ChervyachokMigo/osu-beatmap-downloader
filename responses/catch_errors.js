@@ -1,3 +1,4 @@
+const { dashboard_waiting_quota_start, dashboard_waiting_quota_end } = require("../tools/dashboard_quota");
 const { get_args } = require("../tools/process_args");
 const { log, sleep } = require("../tools/tools");
 const { login_osu } = require("./osu_auth");
@@ -11,7 +12,10 @@ const catch_errors = async (e) => {
 		//Too Many Requests
 		if ( e.response.status === 429 ) {
 			console.error(' RESPONSE >', e?.response?.status, e?.response?.statusText);
-			return await sleep( requests_limit_duration * 60 );
+			await dashboard_waiting_quota_start(requests_limit_duration * 60);			
+            await sleep(requests_limit_duration * 60);
+            await dashboard_waiting_quota_end();
+			return true;
 		//UNAUTHORIZED
 		} else if ( e.response.status === 401 ){
 			console.error(' RESPONSE >', e?.response?.status, e?.response?.statusText);

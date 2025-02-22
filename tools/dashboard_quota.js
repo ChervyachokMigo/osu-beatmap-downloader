@@ -23,7 +23,7 @@ const dashboard_waiting_quota_start = async (time_sec) => {
         await dashboard.change_text_item({
             name: 'download_quota', 
             item_name: 'quota', 
-            text: `предел, ожидание ${get_waiting_quota_time(start_waiting_time, time_sec)}`
+            text: `достигнут лимит, ожидание ${get_waiting_quota_time(start_waiting_time, time_sec)}`
         });
     }, 1000);
 }
@@ -33,7 +33,7 @@ const dashboard_waiting_quota_end = async () => {
     await dashboard.change_text_item({
         name: 'download_quota', 
         item_name: 'quota', 
-        text: `предел`
+        text: `достигнут лимит`
     });
     clearInterval(waiting_quota_interval);
 }
