@@ -48,7 +48,6 @@ const move_beatmaps_osulaser = (files) => {
 			console.error(`stderr: ${stderr}`);
 			return;
 		}
-		console.log(`Successfully opened ${beatmap_name} in osu!Lazer.`);
 		console.log(stdout);
 	});
 	
