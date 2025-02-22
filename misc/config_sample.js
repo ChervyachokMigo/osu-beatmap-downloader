@@ -1,7 +1,9 @@
 module.exports = {
     // ОБЯЗАТЕЛЬНЫЕ ПАРАМЕТРЫ:
-    //Папка osu 
+	//osuFolder если используете osu stable
+	//laser_files если используете osu laser
     osuFolder: `D:\\osu!`,
+	laser_files: 'D:\\osu!laser',
 
     //логин и пароль от осу
 	login: 'yourlogin',

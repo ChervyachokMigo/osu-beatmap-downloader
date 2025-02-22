@@ -1,41 +1,53 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const {osu_db_load, beatmap_property} = require('osu-tools');
+const { osu_db_load, beatmap_property, open_realm, get_realm_objects, laser_beatmap_status } = require('osu-tools');
 
 const osu_db_json_path = path.join('data', 'beatmaps_osu_db.json');
 const beatmaplist_path =  path.join('data', 'beatmapslist.json'); 
 
-const { osuFolder } = require(`../config.js`);
+const { osuFolder, is_use_laser, laser_files } = require(`../config.js`);
 
 const beatmaps_downloaded = [];
 
-///////////osu db json
-const read_osu_db_and_save_json = () => {
+const get_beatmapsets_from_osu_stable = () => {
 	const osu_db_path = path.join( osuFolder, 'osu!.db' );
-
-	const props = [
-		beatmap_property.beatmapset_id
-	];
+	const props = [ beatmap_property.beatmapset_id ];
 
 	const data = Array.from(new Set(
-		osu_db_load( osu_db_path, props ).beatmaps.map( x => x.beatmapset_id ))
+		osu_db_load( osu_db_path, props )
+		.beatmaps.map( x => x.beatmapset_id ))
 	).sort(( a, b ) => a - b );
-	fs.writeFileSync(osu_db_json_path, JSON.stringify(data));
+
+	return data;
+}
+
+const get_beatmapsets_from_osu_laser = () => {
+	const realm_path = path.join( laser_files, 'client.realm' );
+	const realm = open_realm(realm_path);
+
+	const data = Array.from(new Set(
+		[...get_realm_objects(realm, 'BeatmapSet')]
+		.filter ( v => v.Status === laser_beatmap_status.Loved || v.Status === laser_beatmap_status.Approved || v.Status === laser_beatmap_status.Ranked)
+		.map( v => v.OnlineID)
+		.filter( v => v > 0 )))
+		.sort(( a, b ) => a - b );
+
 	return data;
 }
 
 const load_beatmaps_db_json = () => {
 	if(fs.existsSync(osu_db_json_path)){
 		const json_data = JSON.parse(fs.readFileSync(osu_db_json_path));
-		if (typeof json_data.version !== 'undefined') {
+		if (typeof json_data.version === 'undefined') {
+			add_new(json_data);
+		} else {
 			const data = Array.from(new Set(json_data.beatmaps.map( x => x.setId ))).sort(( a, b ) => a - b );
 			fs.writeFileSync(osu_db_json_path, JSON.stringify(data));
 			add_new(data);
-		} else {
-			add_new(json_data);
 		}
 	} else {
-		const data = read_osu_db_and_save_json();
+		const data = get_beatmapsets_from_osu_stable();
+		fs.writeFileSync(osu_db_json_path, JSON.stringify(data));
 		add_new(data);
 	}
 }
@@ -52,7 +64,13 @@ const load_beatmaplist = () => {
 			}
 		}
     } else {
-		load_beatmaps_db_json();
+		if (is_use_laser) {
+			const data = get_beatmapsets_from_osu_laser();
+			fs.writeFileSync(osu_db_json_path, JSON.stringify(data));
+			add_new(data);
+		} else {
+			load_beatmaps_db_json();
+		}
 	}
 }
 
