@@ -1,4 +1,4 @@
-const fs = require('node:fs');
+const { existsSync, mkdirSync } = require('node:fs');
 const colors = require('colors');
 
 const formatAddZero = (t, symbols = 1) => {
@@ -32,8 +32,10 @@ const _this = module.exports = {
         console.log( `[${_this.get_time_string(new Date()).yellow}]`, string.join(' ') );
     },
 
-    checkDir: (path) => {
-        if (!fs.existsSync(`${path}`)) { fs.mkdirSync(`${path}`, {recursive: true});}
+    checkDir: (dest) => {
+        if (!existsSync(dest)) { 
+			mkdirSync(dest, {recursive: true});
+		}
     },
 
     formatPercent: (current, max, digits) => {

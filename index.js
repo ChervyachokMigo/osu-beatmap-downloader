@@ -4,10 +4,6 @@ const jsons = require(`./tools/jsons.js`);
 const { escapeString, log, checkDir, sleep, formatPercent, to_boolean, check_undefined } = require(`./tools/tools.js`);
 const config = require('./config.js');
 
-const { download_path } = require('./tools/download_path.js');
-
-const { existsSync } = require('node:fs');
-const path = require('node:path');
 const move_beatmaps = require('./tools/move_beatmaps.js');
 
 const dashboard = require('dashboard_framework');
@@ -23,9 +19,7 @@ const beatmap_download_2 = require('./responses/beatmap_download_2.js');
 const search_beatmaps_loop = require('./tools/search_beatmaps_loop.js');
 const { set_args, get_args } = require('./tools/process_args.js');
 const get_current_gamemode_by_args = require('./tools/get_current_gamemode_by_args.js');
-
-checkDir(download_path);
-checkDir(path.join(__dirname, 'data'));
+const check_pathes = require('./tools/check_pathes.js');
 
 let is_first = true;
 
@@ -147,7 +141,7 @@ const download_beatmaps = async () => {
 
 	await dashboard.change_status({name: 'total_maps', status: 'waiting'});
 
-	if (config.is_move_beatmaps) {
+	if (config?.is_move_beatmaps) {
         move_beatmaps();
     }
 
@@ -162,15 +156,7 @@ const main = async () => {
 
 	set_args(process.argv.slice(2));
 
-    if (!existsSync(config.osuFolder)){
-        log(`[config: osuFolder] ${config.osuFolder} не существует`);
-        await sleep(99999);
-    }
-
-    if (!existsSync(path.join(config.osuFolder, 'Songs'))){
-        log(`[config: osuFolder/Songs] ${path.join(config.osuFolder, 'Songs')} не существует`);
-        await sleep(99999);
-    }
+	await check_pathes();
 
     await dashboard_init();
     
