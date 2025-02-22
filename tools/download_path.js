@@ -1,5 +1,9 @@
 const path = require(`path`);
-const config = require('../config');
-const mainpath =  path.dirname(process.argv[1]);
+const mainpath =  path.join( __dirname, '..' );
 
-module.exports = path.join( mainpath, config.download_folder );
+const download_folder = 'beatmaps';
+
+module.exports = {
+	download_folder,
+	download_path: path.join( mainpath, download_folder ),
+}

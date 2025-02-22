@@ -4,7 +4,7 @@ const jsons = require(`./tools/jsons.js`);
 const { escapeString, log, checkDir, sleep, formatPercent, to_boolean, check_undefined } = require(`./tools/tools.js`);
 const config = require('./config.js');
 
-const download_path = require('./tools/download_path.js');
+const { download_path } = require('./tools/download_path.js');
 
 const { existsSync } = require('node:fs');
 const path = require('node:path');
@@ -21,7 +21,7 @@ const check_gamemode = require('./tools/check_gamemode.js');
 const { yellow, green } = require('colors');
 const beatmap_download_2 = require('./responses/beatmap_download_2.js');
 const search_beatmaps_loop = require('./tools/search_beatmaps_loop.js');
-const { set_args, get_args, get_arg } = require('./tools/process_args.js');
+const { set_args, get_args } = require('./tools/process_args.js');
 const get_current_gamemode_by_args = require('./tools/get_current_gamemode_by_args.js');
 
 checkDir(download_path);

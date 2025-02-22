@@ -2,6 +2,7 @@ const { log } = require(`./tools.js`);
 const config = require('../config.js');
 const { readdirSync, copyFileSync, rmSync } = require('node:fs');
 const path = require('node:path');
+const { download_path } = require('./download_path.js');
 
 const move_file_sync = ({ src, dest }) => {
     try{
@@ -23,12 +24,14 @@ const move_file_sync = ({ src, dest }) => {
 module.exports = () => {
 	log('moving files to Songs..');
 
-	let files = readdirSync(config.download_folder, { encoding: 'utf8' });
+	const files = readdirSync(download_path, { encoding: 'utf8' });
 
-	for (let file of files) {
+	for (let filename of files) {
+
 		move_file_sync({
-			src: path.join(__dirname, '..', config.download_folder, file), 
-			dest: path.join(config.osuFolder, 'Songs', file)
+			src: path.join(download_path, filename), 
+			dest: path.join(config.osuFolder, 'Songs', filename)
 		});
+
 	}
 }

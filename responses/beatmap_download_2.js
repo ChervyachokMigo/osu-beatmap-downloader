@@ -1,7 +1,7 @@
 const axios = require('axios').default;
 const path = require('node:path');
 const fs = require('node:fs');
-const download_path = require('../tools/download_path');
+const { download_path, download_folder } = require('../tools/download_path');
 const { get_osu_token, check_token } = require('./osu_auth');
 const { log, get_time_string, print_empty_string, empty_string } = require('../tools/tools');
 const { yellow, green } = require('colors');
@@ -24,7 +24,7 @@ const _this = module.exports = async ({ beatmapset_id, output_filename, is_no_vi
 		headers['accept'] = `application/octet-stream`;
 		headers['content-Type'] = `application/octet-stream`;
 		try{
-			log(`downloading ${yellow(beatmapset_id.toString())} to ${green( path.join(config.download_folder, output_filename) )}`);
+			log(`downloading ${yellow(beatmapset_id.toString())} to ${green( path.join(download_folder, output_filename) )}`);
 
 			await dashboard.change_status({ name: 'download_estimate', status: 'current'});
 

@@ -6,12 +6,11 @@ const check_response = require('./check_response.js');
 const beatmap_download = require('../responses/beatmap_download.js');
 const config = require('../config.js');
 const path = require('node:path');
+const { download_path } = require('./download_path.js');
 
 const args = minimist(process.argv.slice(2));
 
 const downloads_list = args.list || null;
-
-const download_path = path.join( path.dirname(process.argv[1]), '..', config.download_folder );
 
 const auth_osu = async () => {
     const access_token = await auth.login_lazer(config.login, config.password);
