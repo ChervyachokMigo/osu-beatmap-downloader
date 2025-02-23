@@ -1,12 +1,12 @@
 const { execSync } = require('node:child_process');
 const defaults = require('./misc/const_defaults.js');
 const keypress = require('keypress');
-const { readFileSync, writeFileSync } = require('node:fs');
+const { readFileSync, writeFileSync, copyFileSync, existsSync } = require('node:fs');
 const colors = require('colors');
-const path = require('node:path');
-const { WEBPORT } = require('./config.js');
-
-const presets_path = path.join('data', 'presets.json');
+const { presets_path, presets_sample_path } = require('./misc/pathes.js');
+const { get_config } = require('./tools/config_web_editor/config_cache.js');
+const check_config = require('./tools/config_web_editor/check_config.js');
+const { log } = require('./tools/tools.js');
 
 const menu_props = {
     preset: 1,
@@ -182,9 +182,12 @@ const command_props = {
     }
 };
 
-const load_presets = () => {
-    command_props.presets.variants = 
-        command_props.presets.variants.concat(JSON.parse(readFileSync(presets_path, {encoding: 'utf8'})));
+const load_presets = async () => {
+	if (!existsSync(presets_path)){
+		log(`[Error launcher: data/presets.json] путь ${presets_path} не существует, установка пресетов по умолчанию`);
+		copyFileSync(presets_sample_path, presets_path);
+    }
+    command_props.presets.variants = command_props.presets.variants.concat(JSON.parse(readFileSync(presets_path, {encoding: 'utf8'})));
     command_props.presets.apply();
 }
 
@@ -198,6 +201,8 @@ const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const symbols = ' _,.[]()-+*:;{}!#$%^&?|';
 
 const command_build = () => {
+	const { WEBPORT } = get_config();
+
     let command = [];
 
     command.push(command_props.gamemode.variants[menu_props.gamemode].args);
@@ -314,7 +319,7 @@ const action_inputs = [
     {key: 's', action: 'save'},
 ];
 
-const init_key_events = () => {
+const init_key_events = async () => {
 
     keypress(process.stdin);
 
@@ -375,6 +380,11 @@ const init_key_events = () => {
 
 }
 
-load_presets();
-init_key_events();
+const laucher_init = async () => {
+	await check_config();
 
+	await load_presets();
+	await init_key_events();
+}
+
+laucher_init();

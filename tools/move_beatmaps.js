@@ -1,15 +1,14 @@
 const { log } = require(`./tools.js`);
-const config = require('../config.js');
 const { readdirSync, copyFileSync, rmSync } = require('node:fs');
 const path = require('node:path');
-const { download_path } = require('./download_path.js');
 const { execFile } = require("child_process");
-
-const osu_laser_exe_path = path.join(process.env.LOCALAPPDATA, 'osulazer', 'current', 'osu!.exe');
+const { osu_laser_exe_path, download_path } = require('../misc/pathes.js');
+const { get_config } = require('./config_web_editor/config_cache.js');
 
 const move_single_file = ({ src, dest }) => {
+	const { is_detail_move_log }  = get_config();
     try{
-        if (config.is_detail_move_log){
+        if (is_detail_move_log){
             log('move from',src);
             log('move to', dest);
         }
@@ -26,11 +25,11 @@ const move_single_file = ({ src, dest }) => {
 
 const move_beatmaps_osu_stable = (files) => {
 	log('moving files to "Songs" in osu stable..');
-
+	const { osuFolder }  = get_config();
 	for (let filename of files) {
 		move_single_file({
 			src: path.join(download_path, filename), 
-			dest: path.join(config.osuFolder, 'Songs', filename)
+			dest: path.join(osuFolder, 'Songs', filename)
 		});
 	}
 }
@@ -58,8 +57,9 @@ module.exports = () => {
 	if (files.length === 0) {
         return;
     }
+	const { is_use_laser }  = get_config();
 
-	if (config.is_use_laser) {
+	if (is_use_laser) {
 		move_beatmaps_osulaser(files);
 	} else {
 		move_beatmaps_osu_stable(files);

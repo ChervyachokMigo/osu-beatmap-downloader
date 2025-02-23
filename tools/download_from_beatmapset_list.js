@@ -4,16 +4,16 @@ const { v2, auth } = require ('osu-api-extended');
 const { escapeString, checkDir } = require(`./tools.js`);
 const check_response = require('./check_response.js');
 const beatmap_download = require('../responses/beatmap_download.js');
-const config = require('../config.js');
 const path = require('node:path');
-const { download_path } = require('./download_path.js');
+const { download_path } = require('../misc/pathes.js');
 
 const args = minimist(process.argv.slice(2));
 
 const downloads_list = args.list || null;
 
 const auth_osu = async () => {
-    const access_token = await auth.login_lazer(config.login, config.password);
+	const { login, password }  = get_config();
+    const access_token = await auth.login_lazer(login, password);
     if (typeof access_token.access_token == 'undefined'){
         throw new console.error('no auth');
     }

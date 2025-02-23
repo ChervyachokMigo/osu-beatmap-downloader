@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<script src="jquery.min.js"></script>
+
+	<script>
+		const escapeWindowsString = (text) => {
+			return text? text.replace(/[*?"<>|]/g, ''): ''};
+	
+		const osu_path_toggle = (name, value) => {
+			if (name === 'is_use_laser') {
+				if (value === true) {
+					$('.osu_stable_path').hide();
+					$('.osu_laser_path').show();
+				} else {
+					$('.osu_stable_path').show();
+					$('.osu_laser_path').hide();
+				}
+			}
+		}
+
+		const view_settings_in_components = () => {
+			$('#is_use_laser').prop('checked', _settings.is_use_laser);
+			$('#osuFolder').val(_settings.osuFolder);
+			$('#laser_files').val(_settings.laser_files);
+			$('#login').val(_settings.login);
+			$('#password').val(_settings.password);
+			$('#is_move_beatmaps').prop('checked', _settings.is_move_beatmaps);
+			$('#is_detail_move_log').prop('checked', _settings.is_detail_move_log);
+			/* $('#mode').val(_settings.mode);
+			$('#maps_date_depth').val(_settings.maps_date_depth); */
+			$('#WEBPORT').val(_settings.WEBPORT);
+			$('#SOCKETPORT').val(_settings.SOCKETPORT);
+			$('#DEBUG_DASHBOARD').prop('checked', _settings.DEBUG_DASHBOARD);
+			osu_path_toggle('is_use_laser', $('#is_use_laser').prop('checked'));
+		}
+
+		let _settings = {};
+
+		const load_settings = async () => {
+			$.post({ 
+				url: '/load', 
+				success: (settings)=> {
+					console.log('received ', settings); 
+					_settings = settings;
+					view_settings_in_components();
+			}});
+		}
+
+		const save_settings = async () => {
+			console.log('sended ', _settings); 
+			$.post({
+				url: '/save',
+                data: JSON.stringify(_settings),
+                contentType: 'application/json',
+                dataType: 'json'
+			});
+		}
+
+		const send_exit = () => {
+			$.post({
+				url: '/exit', 
+				success: ()=> window.close()
+			});
+		};
+
+		const change_checked = async (el) => {
+			const name = $(el).prop("id");
+			const value = $(el).prop('checked');
+			_settings[name] = value;
+			await save_settings();
+			osu_path_toggle(name, value);
+		}
+
+		const change_value = async (el) => {
+			const name = $(el).prop("id");
+			const value = $(el).val();
+			_settings[name] = value;
+			await save_settings();
+		}
+
+		const change_path = async (el) => {
+			const name = $(el).prop("id");
+			const value = escapeWindowsString($(el).val());
+			$(el).val(value);
+			_settings[name] = value;
+			await save_settings();
+		}
+
+		const change_number = async (el) => {
+			const name = $(el).prop("id");
+			const value = Number($(el).val());
+			_settings[name] = value;
+			await save_settings();
+		}
+
+		$(document).ready(function(){
+			load_settings();
+		});
+
+	</script>
+
+	<link rel="stylesheet" href="styles.css">
+
+    <title>Config editor</title>
+
+	</head>
+	<body>
+		<header>
+		<h1>Config editor</h1>
+		</header>
+		<div class="content">
+			<div class="container">
+				<div class="option">
+					<input type="checkbox" id="is_use_laser" onchange="change_checked(this)"/>
+					<label for="is_use_laser">Использовать осу лазер?</label>
+				</div>
+				<div class="option osu_stable_path">
+					<label for="osuFolder">путь к осу</label>
+					<input type="text" id="osuFolder" onkeyup="change_path(this)"></input>
+				</div>
+				<div class="option osu_laser_path">
+					<label for="laser_files">путь к осу лазер</label>
+					<input type="text" id="laser_files" onkeyup="change_path(this)"></input>
+				</div>
+				<div class="option">
+					<label for="login">осу логин</label>
+					<input type="text" id="login" onkeyup="change_value(this)"></input>
+				</div>
+				<div class="option">
+					<label for="password">осу пароль</label>
+					<input type="text" id="password" onkeyup="change_value(this)"></input>
+				</div>
+				<div class="option">
+					<input type="checkbox" id="is_move_beatmaps" onchange="change_checked(this)"/>
+					<label for="is_move_beatmaps">копировать карты в осу после скачивания?</label>
+				</div>
+				<div class="option">
+					<input type="checkbox" id="is_detail_move_log"  onchange="change_checked(this)"/>
+					<label for="is_detail_move_log">детальный процесс копирования</label>
+				</div>
+				<!-- <div class="option">
+					<label for="mode">osu gamemode</label>
+					<input type="text" id="mode" onkeyup="change_value(this)"></input>
+				</div> -->
+				<!-- <div class="option">
+					<label for="maps_date_depth">max beatmaps pages</label>
+					<input type="number" id="maps_date_depth" onkeyup="change_value(this)" onchange="change_number(this)"></input>
+				</div> -->
+				<div class="option">
+					<label for="WEBPORT">Порт вебсервера</label>
+					<input type="number" id="WEBPORT" onkeyup="change_value(this)" onchange="change_number(this)"></input>
+				</div>
+				<div class="option">
+					<label for="SOCKETPORT">Порт вебсокета</label>
+					<input type="number" id="SOCKETPORT" onkeyup="change_value(this)" onchange="change_number(this)"></input>
+				</div>
+				<div class="option">
+					<input type="checkbox" id="DEBUG_DASHBOARD"  onchange="change_checked(this)"/>
+					<label for="DEBUG_DASHBOARD">Режим отладки для сайта</label>
+				</div>
+				<div class="option">
+					<input type="button" id="exit" value="exit" onclick="send_exit()"/>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

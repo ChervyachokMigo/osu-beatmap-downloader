@@ -21,6 +21,10 @@ const _this = module.exports = {
         return text?text.replace(/[&\/\\#+$~%'":*?<>{}|]/g, ''):'';
     },
 
+	escapeWindowsString: (text) => {
+		return text? text.replace(/[\/\\:*?"<>|]/g, ''): '';
+	},
+
     sleep: async (seconds) => {
         console.log(' > sleeping for', (seconds/60).toFixed(1), 'mins');
         return await new Promise( (resolve) => {
@@ -68,4 +72,13 @@ const _this = module.exports = {
 	},
 	
 	print_empty_string: () => process.stdout.write( '                                                                                    \r' ),
+
+	isJSON: (str) => {
+        try {
+            JSON.parse(str.toString());
+        } catch (e) {
+            return false;
+        }
+        return true;
+    },
 }

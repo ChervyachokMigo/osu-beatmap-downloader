@@ -1,7 +1,5 @@
 const { rmSync, readFileSync, writeFileSync } = require("original-fs");
-const path = require("path");
-
-const last_cursor_path = path.join('data', 'last_cursor.json');
+const { last_cursor_path } = require("../misc/pathes");
 
 module.exports = {
     save_last_cursor: (cursor) => {

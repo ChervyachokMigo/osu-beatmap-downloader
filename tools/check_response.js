@@ -1,12 +1,12 @@
 const fs = require('node:fs');
 var { sleep, log } = require(`./tools.js`);
 var  download_quota  = require("../responses/download_quota.js");
-const  { download_path }  = require("./download_path.js");
 
 const move_beatmaps = require('./move_beatmaps.js');
 const { dashboard_waiting_quota_start, dashboard_waiting_quota_end } = require('./dashboard_quota.js');
-const config = require('../config.js');
 const path = require('node:path');
+const { get_config } = require('./config_web_editor/config_cache.js');
+const { download_path } = require('../misc/pathes.js');
 
 const waiting_secs = 120;
 
@@ -42,7 +42,9 @@ module.exports = async function check_response (response, beatmapname) {
             
             await dashboard_waiting_quota_start(waiting_secs);
 
-			if (config.is_move_beatmaps) {
+			const { is_move_beatmaps } = get_config();
+
+			if (is_move_beatmaps) {
 				move_beatmaps();
 			}
 			

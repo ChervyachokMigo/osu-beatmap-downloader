@@ -1,46 +1,38 @@
-const { existsSync } = require("fs");
-const path = require("path");
+const { existsSync } = require("node:fs");
+const path = require("node:path");
 
-const { sleep, log, checkDir } = require("./tools");
-const config = require("../config");
+const { log } = require("./tools");
 
-const { download_path } = require('../tools/download_path.js');
-
-const exit_process = async () => {
-	await sleep(60);
-	process.exit();
-}
+const start_config_editor = require("./config_web_editor/start_config_editor.js");
+const { osu_laser_exe_path } = require("../misc/pathes.js");
+const { get_config } = require("./config_web_editor/config_cache.js");
 
 const check_variable = async (config_name, variable) => {
 	if (typeof variable === 'undefined' || variable === null) {
         log(`[Error config: ${config_name}] значение "${config_name}" не указано`);
-        await exit_process();
+        await start_config_editor();
     }
 }
 
 const check_path = async (config_name, dest) => {
 	if (!existsSync(dest)){
 		log(`[Error config: ${config_name}] путь ${dest} не существует`);
-		await exit_process();
+		await start_config_editor();
 	}
 }
 
-const data_path = path.join(__dirname, '..', 'data');
-
 module.exports = async () => {
-	
-	checkDir(data_path);
-	checkDir(download_path);
 
-	await check_variable('is_use_laser', config?.is_use_laser);
+	const { is_use_laser, osuFolder, laser_files }  = get_config();
 
-	if (config?.is_use_laser) {
+	await check_variable('is_use_laser', is_use_laser);
+
+	if (is_use_laser) {
 		log('Проверка путей osu laser');
 		
-		await check_variable('laser_files', config?.laser_files);
+		await check_variable('laser_files', laser_files);
 
-		const osu_laser = path.join( config?.laser_files, 'client.realm' );
-		const osu_laser_exe_path = path.join(process.env.LOCALAPPDATA, 'osulazer', 'current', 'osu!.exe');
+		const osu_laser = path.join( laser_files, 'client.realm' );
 
 		await check_path('osu_laser_exe', osu_laser_exe_path);
 		await check_path('laser_files', osu_laser);
@@ -48,10 +40,10 @@ module.exports = async () => {
 	} else {
 		log('Проверка путей osu stable');
 
-		await check_variable('osuFolder', config?.osuFolder);
+		await check_variable('osuFolder', osuFolder);
 
-		const osu_stable = path.normalize(config?.osuFolder);
-		const osu_stable_songs = path.join(osu_stable, 'Songs');
+		const osu_stable = path.normalize(osuFolder);
+		const osu_stable_songs = path.join( osu_stable, 'Songs' );
 		const osu_stable_db = path.join( osu_stable, 'osu!.db' );
 
 		await check_path('osuFolder', osu_stable);

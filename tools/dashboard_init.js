@@ -1,8 +1,10 @@
 const dashboard = require('dashboard_framework');
-const { WEBPORT, SOCKETPORT, DEBUG_DASHBOARD } = require('../config.js');
+const { get_config } = require('./config_web_editor/config_cache');
 
 module.exports = {
     dashboard_init: async () => {
+		const { WEBPORT, SOCKETPORT, DEBUG_DASHBOARD }  = get_config();
+
         const colors = { 
             enable: [59, 124, 255], 
             disable: [192, 50, 50], 

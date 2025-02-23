@@ -1,5 +1,5 @@
 const axios = require('axios').default;
-const { auth_osu, get_osu_token, check_token } = require('./osu_auth');
+const { get_osu_token, check_token } = require('./osu_auth');
 const { log } = require('../tools/tools');
 const { catch_errors } = require('./catch_errors');
 
@@ -13,7 +13,7 @@ const { catch_errors } = require('./catch_errors');
  */
 
 const _this = module.exports = async ( args ) => {
-
+	
 	await check_token();
 
 	return await new Promise( async (resolve, reject) => {

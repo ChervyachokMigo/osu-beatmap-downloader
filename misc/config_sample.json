@@ -1,0 +1,15 @@
+{
+    "osuFolder": "D:\\osu!",
+	"laser_files": "D:\\osu!laser",
+	"login": "yourlogin",
+	"password": "yourpassword",
+
+	"is_use_laser": false,
+    "is_move_beatmaps": true,
+    "is_detail_move_log": false,
+
+    "WEBPORT": 4451,
+    "SOCKETPORT": 4452,
+
+    "DEBUG_DASHBOARD": false
+}

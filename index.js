@@ -1,8 +1,7 @@
 
 const defaults = require('./misc/const_defaults.js');
 const jsons = require(`./tools/jsons.js`);
-const { escapeString, log, checkDir, sleep, formatPercent, to_boolean, check_undefined } = require(`./tools/tools.js`);
-const config = require('./config.js');
+const { escapeString, log, sleep, formatPercent } = require(`./tools/tools.js`);
 
 const move_beatmaps = require('./tools/move_beatmaps.js');
 
@@ -19,7 +18,9 @@ const beatmap_download_2 = require('./responses/beatmap_download_2.js');
 const search_beatmaps_loop = require('./tools/search_beatmaps_loop.js');
 const { set_args, get_args } = require('./tools/process_args.js');
 const get_current_gamemode_by_args = require('./tools/get_current_gamemode_by_args.js');
-const check_pathes = require('./tools/check_pathes.js');
+
+const check_config = require('./tools/config_web_editor/check_config.js');
+const { get_config } = require('./tools/config_web_editor/config_cache.js');
 
 let is_first = true;
 
@@ -141,7 +142,9 @@ const download_beatmaps = async () => {
 
 	await dashboard.change_status({name: 'total_maps', status: 'waiting'});
 
-	if (config?.is_move_beatmaps) {
+	const { is_move_beatmaps } = get_config();
+
+	if (is_move_beatmaps) {
         move_beatmaps();
     }
 
@@ -153,13 +156,18 @@ const download_beatmaps = async () => {
 }
 
 const main = async () => {
+	
+	const check_config_result = await check_config();
+
+	if (!check_config_result) {
+		log('config invalid');
+        process.exit();
+	};
 
 	set_args(process.argv.slice(2));
-
-	await check_pathes();
-
+	
     await dashboard_init();
-    
+
     await auth_osu();
     await dashboard.change_status({name: 'osu_auth', status: 'on'});
 	await dashboard.change_status({name: 'db_scan', status: 'checking'});

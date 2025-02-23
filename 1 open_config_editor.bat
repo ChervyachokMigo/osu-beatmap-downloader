@@ -1,0 +1,1 @@
+node tools/open_config_editor

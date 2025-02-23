@@ -2,14 +2,13 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { osu_db_load, beatmap_property, open_realm, get_realm_objects, laser_beatmap_status } = require('osu-tools');
 
-const osu_db_json_path = path.join('data', 'beatmaps_osu_db.json');
-const beatmaplist_path =  path.join('data', 'beatmapslist.json'); 
-
-const { osuFolder, is_use_laser, laser_files } = require(`../config.js`);
+const { beatmaplist_path, osu_db_json_path } = require('../misc/pathes.js');
+const { get_config } = require('./config_web_editor/config_cache.js');
 
 const beatmaps_downloaded = [];
 
 const get_beatmapsets_from_osu_stable = () => {
+	const { osuFolder } = get_config();
 	const osu_db_path = path.join( osuFolder, 'osu!.db' );
 	const props = [ beatmap_property.beatmapset_id ];
 
@@ -22,6 +21,7 @@ const get_beatmapsets_from_osu_stable = () => {
 }
 
 const get_beatmapsets_from_osu_laser = () => {
+	const { laser_files } = get_config();
 	const realm_path = path.join( laser_files, 'client.realm' );
 	const realm = open_realm(realm_path);
 
@@ -64,6 +64,7 @@ const load_beatmaplist = () => {
 			}
 		}
     } else {
+		const { is_use_laser } = get_config();
 		if (is_use_laser) {
 			const data = get_beatmapsets_from_osu_laser();
 			fs.writeFileSync(osu_db_json_path, JSON.stringify(data));

@@ -1,15 +1,15 @@
 const axios = require('axios').default;
 const path = require('node:path');
 const fs = require('node:fs');
-const { download_path, download_folder } = require('../tools/download_path');
 const { get_osu_token, check_token } = require('./osu_auth');
-const { log, get_time_string, print_empty_string, empty_string } = require('../tools/tools');
+const { log, get_time_string } = require('../tools/tools');
 const { yellow, green } = require('colors');
-const config = require('../config');
 const move_beatmaps = require('../tools/move_beatmaps');
 const dashboard = require('dashboard_framework');
 
 const { catch_errors } = require('./catch_errors');
+const { get_config } = require('../tools/config_web_editor/config_cache');
+const { download_path } = require('../misc/pathes');
 
 const _this = module.exports = async ({ beatmapset_id, output_filename, is_no_video = true }) => {	
 	const args = { beatmapset_id, output_filename, is_no_video };
@@ -24,7 +24,7 @@ const _this = module.exports = async ({ beatmapset_id, output_filename, is_no_vi
 		headers['accept'] = `application/octet-stream`;
 		headers['content-Type'] = `application/octet-stream`;
 		try{
-			log(`downloading ${yellow(beatmapset_id.toString())} to ${green( path.join(download_folder, output_filename) )}`);
+			log(`downloading ${yellow(beatmapset_id.toString())} to ${green( path.join( path.basename(download_path), output_filename) )}`);
 
 			await dashboard.change_status({ name: 'download_estimate', status: 'current'});
 
@@ -54,7 +54,8 @@ const _this = module.exports = async ({ beatmapset_id, output_filename, is_no_vi
 				console.error( res.status, res.statusText, typeof res.data, res.data.length );
 			}
 		} catch (e) {
-			if (config.is_move_beatmaps) {
+			const { is_move_beatmaps }  = get_config();
+			if (is_move_beatmaps) {
 				move_beatmaps();
 			}
 

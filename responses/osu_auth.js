@@ -1,21 +1,24 @@
 const { auth } = require ('osu-api-extended');
-const { login, password } = require('../config.js');
+
 const path = require('node:path');
 const { readFileSync, existsSync, writeFileSync } = require('node:fs');
 const { log } = require('../tools/tools.js');
+const { get_config } = require('../tools/config_web_editor/config_cache.js');
+const { osu_token_path } = require('../misc/pathes.js');
+const start_config_editor = require('../tools/config_web_editor/start_config_editor.js');
 
-const osu_token_path = path.join('data', 'osu_token.json');
 
 let access_token = null;
 let expires_in = null;
 
 const login_osu = async () => {
-	console.log(' > login osu');
-    access_token = await auth.login_lazer(login, password);
+	log('logining osu...');
+	const { login, password } = get_config();
 
-    if (!access_token?.access_token){
-        log('no auth osu. trying again...');
-        await login_osu();
+    access_token = await auth.login_lazer(login, password);
+    if (typeof access_token.access_token === 'undefined'){
+        log('no auth osu.');
+		await start_config_editor();
     } else {
         expires_in = new Date().getTime() + access_token.expires_in * 1000;
         writeFileSync(osu_token_path, JSON.stringify({ access_token, time: expires_in }), { encoding: 'utf8'});
@@ -42,7 +45,8 @@ const auth_osu = async () => {
 }
 
 module.exports = {
-    auth_osu, login_osu,
+    auth_osu, 
+	login_osu,
 
     get_osu_token: () => {
         return access_token?.access_token;
