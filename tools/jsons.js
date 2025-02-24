@@ -32,6 +32,8 @@ const get_beatmapsets_from_osu_laser = () => {
 		.filter( v => v > 0 )))
 		.sort(( a, b ) => a - b );
 
+	realm.close();
+
 	return data;
 }
 
