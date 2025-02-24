@@ -1,7 +1,94 @@
 
+/* Основные стили для body и текста */
 body {
-  background-color: #f2f2f2;
-  font-family: Arial, sans-serif;
-  color: #333;
-  line-height: 1.5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+/* Стили для header */
+header {
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    padding: 20px 0;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+}
+
+/* Стили для контейнера */
+.container {
+    width: 90%;
+    max-width: 600px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Стили для опций и чекбоксов */
+.option {
+    margin-bottom: 15px;
+}
+
+.option label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.option input[type="text"],
+.option input[type="number"] {
+    width: 97%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.option input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+/* Стили для кнопки выхода */
+#exit {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    width: 100%;
+}
+
+#exit:hover {
+    background-color: #c0392b;
+}
+
+/* Стили для чекбоксов и их контейнеров */
+.checkbox {
+    background-color: #ecf0f1;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.checkbox .option {
+    margin-bottom: 0;
+}
+
+/* Мягкие тени для элементов */
+.container, .checkbox, #exit {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Адаптивные стили */
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+        padding: 10px;
+    }
 }

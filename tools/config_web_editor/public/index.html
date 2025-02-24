@@ -114,9 +114,11 @@
 		</header>
 		<div class="content">
 			<div class="container">
-				<div class="option">
-					<input type="checkbox" id="is_use_laser" onchange="change_checked(this)"/>
-					<label for="is_use_laser">Использовать осу лазер?</label>
+				<div class="checkbox">
+					<div class="option table-row">
+						<input type="checkbox" id="is_use_laser" onchange="change_checked(this)"/>
+						<label for="is_use_laser">Использовать осу лазер?</label>
+					</div>
 				</div>
 				<div class="option osu_stable_path">
 					<label for="osuFolder">путь к осу</label>
@@ -134,13 +136,17 @@
 					<label for="password">осу пароль</label>
 					<input type="text" id="password" onkeyup="change_value(this)"></input>
 				</div>
-				<div class="option">
-					<input type="checkbox" id="is_move_beatmaps" onchange="change_checked(this)"/>
-					<label for="is_move_beatmaps">копировать карты в осу после скачивания?</label>
+				<div class="checkbox">
+					<div class="option">
+						<input type="checkbox" id="is_move_beatmaps" onchange="change_checked(this)"/>
+						<label for="is_move_beatmaps">копировать карты в осу после скачивания?</label>
+					</div>
 				</div>
-				<div class="option">
-					<input type="checkbox" id="is_detail_move_log"  onchange="change_checked(this)"/>
-					<label for="is_detail_move_log">детальный процесс копирования</label>
+				<div class="checkbox">
+					<div class="option">
+						<input type="checkbox" id="is_detail_move_log"  onchange="change_checked(this)"/>
+						<label for="is_detail_move_log">детальный процесс копирования</label>
+					</div>
 				</div>
 				<!-- <div class="option">
 					<label for="mode">osu gamemode</label>
@@ -158,9 +164,11 @@
 					<label for="SOCKETPORT">Порт вебсокета</label>
 					<input type="number" id="SOCKETPORT" onkeyup="change_value(this)" onchange="change_number(this)"></input>
 				</div>
-				<div class="option">
-					<input type="checkbox" id="DEBUG_DASHBOARD"  onchange="change_checked(this)"/>
-					<label for="DEBUG_DASHBOARD">Режим отладки для сайта</label>
+				<div class="checkbox">
+					<div class="option">
+						<input type="checkbox" id="DEBUG_DASHBOARD"  onchange="change_checked(this)"/>
+						<label for="DEBUG_DASHBOARD">Режим отладки для сайта</label>
+					</div>
 				</div>
 				<div class="option">
 					<input type="button" id="exit" value="exit" onclick="send_exit()"/>
