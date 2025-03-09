@@ -28,6 +28,7 @@
 			$('#laser_files').val(_settings.laser_files);
 			$('#login').val(_settings.login);
 			$('#password').val(_settings.password);
+			$('#is_auto_download_new_beatmaps').prop('checked', _settings.is_auto_download_new_beatmaps);
 			$('#is_move_beatmaps').prop('checked', _settings.is_move_beatmaps);
 			$('#is_detail_move_log').prop('checked', _settings.is_detail_move_log);
 			/* $('#mode').val(_settings.mode);
@@ -135,6 +136,12 @@
 				<div class="option">
 					<label for="password">Осу пароль</label>
 					<input type="text" id="password" onkeyup="change_value(this)"></input>
+				</div>
+				<div class="checkbox">
+					<div class="option">
+						<input type="checkbox" id="is_auto_download_new_beatmaps" onchange="change_checked(this)"/>
+						<label for="is_auto_download_new_beatmaps">Автоматически скачивать новые карты</label>
+					</div>
 				</div>
 				<div class="checkbox">
 					<div class="option">

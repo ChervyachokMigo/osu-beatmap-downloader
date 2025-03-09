@@ -140,9 +140,9 @@ const download_beatmaps = async () => {
 		}
 	)
 
-	await dashboard.change_status({name: 'total_maps', status: 'waiting'});
 
-	const { is_move_beatmaps } = get_config();
+
+	const { is_move_beatmaps, is_auto_download_new_beatmaps } = get_config();
 
 	if (is_move_beatmaps) {
         move_beatmaps();
@@ -150,9 +150,12 @@ const download_beatmaps = async () => {
 
 	is_first = false;
 
-    //waiting 3 minutes for restart
-	await sleep(180);
-	await download_beatmaps();
+	if (is_auto_download_new_beatmaps) {
+		//waiting 3 minutes for restart
+		await dashboard.change_status({name: 'total_maps', status: 'waiting'});
+		await sleep(180);
+		await download_beatmaps();
+	}
 }
 
 const main = async () => {
