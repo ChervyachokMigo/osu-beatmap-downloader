@@ -23,6 +23,7 @@ const check_config = require('./tools/config_web_editor/check_config.js');
 const { get_config } = require('./tools/config_web_editor/config_cache.js');
 
 let is_first = true;
+let download_counter = 0;
 
 const download_beatmaps = async () => {
 
@@ -128,6 +129,7 @@ const download_beatmaps = async () => {
 						if (success && status !== 'qualified') {
 							console.log('');
 							jsons.add_new(beatmapset_id);
+							download_counter++;
 						}
 					} else {
 						console.log('[', `${current_idx_with_page}/${total}`,']', '[', 'V'.green, ']', beatmapset_id, artist, title);
@@ -181,6 +183,8 @@ const main = async () => {
     await download_beatmaps();
 
     await dashboard_end();
+	
+	console.log('[', `${download_counter}`,']', 'beatmaps downloaded.');
 
 	await sleep(180);
 
